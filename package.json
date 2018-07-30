@@ -1,0 +1,33 @@
+{
+  "name": "access_control",
+  "version": "0.0.1",
+  "description": "A general access control mechanism for smart contracts based on the ethereum blockchain.",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "truffle test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daostack/access_control.git"
+  },
+  "keywords": [
+    "Solidity",
+    "Ethereum",
+    "Access",
+    "Control",
+    "Permissions",
+    "Security",
+    "Role"
+  ],
+  "author": "Matan Tsuberi",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/daostack/access_control/issues"
+  },
+  "homepage": "https://github.com/daostack/access_control#readme",
+  "dependencies": {
+    "openzeppelin-solidity": "1.11.0"
+  }
+}
