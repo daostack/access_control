@@ -2,6 +2,18 @@
 
 Access control mechanism for DAOstack.
 
+# Get Started
+
+1. `git clone git@github.com:daostack/access_control.git && cd access_control`
+2. `npm i`
+
+## Commands
+
+- `truffle test`
+- `truffle compile`
+- `truffle deploy`
+
+# Concept
 The basic idea is that there are a set of "locks"/"topics" each with a set of "keys". A contract can protects one of it's methods with a lock (or more) such that anyone with the appropriate key can use it to access this method.
 Each key can have an expiration time, # of uses. Accounts can also transfer some (or all) of their capabilities to other accounts if allowed. Initially the contract itself has a "master key" (infinite uses, no expiration), and then it can pass some partial capabilities to the desired accounts.
 
