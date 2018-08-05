@@ -6,7 +6,7 @@ import "./Protected.sol";
  * @title a simple example of how to use the Protected base class.
  */
 contract ProtectedController is Protected {
-    uint schemesRegistered = 0;
+    uint public schemesRegistered = 0;
     mapping(uint => uint) public schemes;
 
     constructor() public {
@@ -37,7 +37,7 @@ contract ProtectedController is Protected {
         schemes[scheme] = param;
     }
 
-    function reset() only(unlock("reset")) public {
+    function reset() public only(unlock("reset")) {
         for(uint i = 0; i < schemesRegistered; i++) {
             schemes[i] = 0;
         }

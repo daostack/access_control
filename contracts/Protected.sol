@@ -28,7 +28,7 @@ contract Protected {
     }
 
     //      id                 owner      key
-    mapping(bytes32 => mapping(address => Key)) public keys;
+    mapping(bytes32 => mapping(address => Key[])) public keys;
 
     event Lock(bytes32 indexed id);
     event Transfer(bytes32 indexed id, address indexed from, address indexed to, bool transferable, uint expiration, uint uses);
@@ -46,13 +46,14 @@ contract Protected {
      */
     function lock(
         bytes32 id
-    ) internal {
-        require(!keys[id][this].exists);
+    ) internal {        
+        if (keys[id][this].length == 0){
+            keys[id][this].length++;
+            keys[id][this][0].exists = true;
+            keys[id][this][0].transferable = true;
 
-        keys[id][this].exists = true;
-        keys[id][this].transferable = true;
-
-        emit Lock(id);
+            emit Lock(id);
+        }
     }
 
     /**
@@ -60,8 +61,8 @@ contract Protected {
      * @param id lock id,
      * @param owner the owner of the key.
      */
-    function revoke(bytes32 id, address owner) internal {
-        keys[id][owner].exists = false;
+    function revokeFrom(bytes32 id, address owner, uint i) internal {
+        keys[id][owner][i].exists = false;
         emit Revoke(id, owner);
     }
 
@@ -69,8 +70,26 @@ contract Protected {
      * @dev Destroy the sender's key.
      * @param id lock id,
      */
-    function revoke(bytes32 id) public {
-        revoke(id, msg.sender);
+    function revoke(bytes32 id, uint i) public {
+        revokeFrom(id, msg.sender, i);
+    }
+
+    /**
+     * @dev Destroy the sender's key.
+     * @param id lock id,
+     */
+    function revokeAllFrom(bytes32 id, address owner) internal {
+        for(uint i = 0; i < keys[id][owner].length; i++) {
+            revokeFrom(id, owner, i);
+        }
+    }
+
+    /**
+     * @dev Destroy the sender's key.
+     * @param id lock id,
+     */
+    function revokeAll(bytes32 id) public {
+        revokeAllFrom(id, msg.sender);
     }
 
     /**
@@ -85,39 +104,58 @@ contract Protected {
      */
     function transferKeyFrom(
         bytes32 id,
+        uint i,
         address from,
         address to,
         bool transferable,
         uint expiration,
         uint uses
     ) internal {
-        Key memory key = keys[id][from];
+        Key memory key = keys[id][from][i];
         require(key.exists);
         require(key.transferable);
         require(expiration != 0 || key.expiration == 0);
-        require(expiration <= key.expiration);
+        require(expiration <= key.expiration || key.expiration == 0);
         require(uses != 0 || key.uses == 0);
-        require(uses <= key.uses);
+        require(uses <= key.uses || key.uses == 0);
 
         if (uses > 0 && uses == key.uses) {
-            keys[id][from].exists = false;
-        } else {
-            keys[id][from].uses = keys[id][from].uses.sub(uses);
+            keys[id][from][i].exists = false;
+        } else if (key.uses > 0) {
+            keys[id][from][i].uses = keys[id][from][i].uses.sub(uses);
         }
 
-        if(keys[id][to].exists) {
-            // Merge capabilities (note: this can be a problem since it might expand capabilities)
-            keys[id][to].transferable = keys[id][to].transferable || transferable;
-            keys[id][to].expiration = keys[id][to].expiration.max256(expiration);
-            keys[id][to].uses = keys[id][to].uses.add(uses);
-        } else {
-            keys[id][to].exists = true;
-            keys[id][to].transferable = transferable;
-            keys[id][to].expiration = expiration;
-            keys[id][to].uses = uses;
+        bool merged = false;
+
+        if (keys[id][to].length > 0) {
+            for(uint k = 0; k < keys[id][to].length; k++) {
+                if (keys[id][to][k].exists && keys[id][to][k].transferable == transferable && keys[id][to][k].expiration == expiration) {
+                    merged = true;
+                    if (keys[id][to][k].uses > 0) {
+                        keys[id][to][k].uses = keys[id][to][k].uses.add(uses);
+                    }
+                    break;
+                }
+            }
+        }
+
+        if(!merged) {
+            Key memory newKey = Key(true, transferable, expiration, uses);
+            keys[id][to].push(newKey);
         }
 
         emit Transfer(id, from, to, transferable, expiration, uses);
+    }
+
+    function transferKeyFrom(
+        bytes32 id,
+        address from,
+        address to,
+        bool transferable,
+        uint expiration,
+        uint uses
+    ) internal {
+        transferKeyFrom(id, 0, from, to, transferable, expiration, uses);
     }
 
     /**
@@ -131,6 +169,7 @@ contract Protected {
      */
     function transferKey(
         bytes32 id,
+        uint i,
         address to,
         bool transferable,
         uint expiration,
@@ -138,6 +177,7 @@ contract Protected {
     ) public {
         transferKeyFrom(
             id,
+            i,
             msg.sender,
             to,
             transferable,
@@ -154,8 +194,10 @@ contract Protected {
      * @param to next owner.
      */
     function transferAllFrom(bytes32 id, address from, address to) internal {
-        Key memory key = keys[id][from];
-        transferKeyFrom(id, from, to, true, key.expiration, key.uses);
+        for(uint i = 0 ; i < keys[id][from].length; i++) {
+            Key memory key = keys[id][from][i];
+            transferKeyFrom(id, i, from, to, true, key.expiration, key.uses);
+        }
     }
 
     /**
@@ -189,22 +231,33 @@ contract Protected {
      * @param id the id of the lock which the user want to unlock.
      */
 
-    function unlock(bytes32 id) internal returns (bool) {
-        bool used = false;
-        Key memory key = keys[id][msg.sender];
+    function unlock(bytes32 id, uint keyPos) internal returns (bool) {
+        Key memory key = keys[id][msg.sender][keyPos];
         if (
             key.exists &&
             (key.expiration == 0 || key.expiration >= now)
         ) {
             if (key.uses == 1) {
-                keys[id][msg.sender].exists = false;
+                keys[id][msg.sender][keyPos].exists = false;
             } else if (key.uses > 1){
-                keys[id][msg.sender].uses --;
+                keys[id][msg.sender][keyPos].uses --;
             }
             emit Use(id, msg.sender);
-            used = true;
+            return true;
         }
-        return used;
+        return false;
+    }
+
+    function unlock(bytes32 id) internal returns (bool) {
+        // @notice the loop is intended to prevent a case where the operation faied
+        // because one of the key was expired
+        for (uint i = 0; i < keys[id][msg.sender].length; i++) {
+            if (unlock(id, i)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     function toBytes(uint256 x) public pure returns (bytes b) {
