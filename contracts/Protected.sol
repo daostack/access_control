@@ -30,30 +30,9 @@ contract Protected {
     //      id                 owner      key
     mapping(bytes32 => mapping(address => Key)) public keys;
 
-    event Lock(bytes32 indexed id);
     event Transfer(bytes32 indexed id, address indexed from, address indexed to, bool transferable, uint expiration, uint uses);
     event Use(bytes32 indexed id, address indexed owner);
     event Revoke(bytes32 indexed id, address indexed owner);
-
-    /**
-     * @dev Create a new key for a new lock. The owner of the key is the contract itself.
-     * @notice The convention for lock ids is:
-     *           - restricting a method: `lock(methodName)`
-     *           - restricting to specific params: `lock(keccak256(methodName, param1, param2))`
-     *           - use ANYTHING for irrelevent parameters: `lock(keccak256(methodName, param1, ANYTHING, param3))`
-     *           - traling `ANYTHING`s are implied: use `lock(keccak256(methodName, param1))` instead of `lock(keccak256(methodName, param1, ANYTHING))`
-     * @param id unique lock id
-     */
-    function lock(
-        bytes32 id
-    ) internal {
-        require(!keys[id][this].exists);
-
-        keys[id][this].exists = true;
-        keys[id][this].transferable = true;
-
-        emit Lock(id);
-    }
 
     /**
      * @dev Destroy a given key making it non existent.
@@ -71,6 +50,20 @@ contract Protected {
      */
     function revoke(bytes32 id) public {
         revoke(id, msg.sender);
+    }
+
+    function setKey (
+        bytes32 id,
+        address to,
+        bool transferable,
+        uint expiration,
+        uint uses) internal {
+        keys[id][to].exists = true;
+        keys[id][to].transferable = transferable;
+        keys[id][to].expiration = expiration;
+        keys[id][to].uses = uses;
+
+        emit Transfer(id, this, to, transferable, expiration, uses);
     }
 
     /**
@@ -92,24 +85,41 @@ contract Protected {
         uint uses
     ) internal {
         Key memory key = keys[id][from];
-        require(key.exists);
-        require(key.transferable);
-        require(expiration != 0 || key.expiration == 0);
-        require(expiration <= key.expiration);
-        require(uses != 0 || key.uses == 0);
-        require(uses <= key.uses);
+        require(key.exists, "Sender doesn't own the specified key");
+        require(key.transferable, "Sender's key isn't a transferable key");
+        //require(expiration != 0 || key.expiration == 0, "Your key is expirable, please specify an expiration date for transferred key");
+        require(key.expiration == 0 || expiration <= key.expiration, "Your key has shorter expiration date than required");
+        //require(uses != 0 || key.uses == 0, "Your key is limited in uses, please specify uses count for transferred key");
+        require(key.uses == 0 || uses <= key.uses, "You don't have enough uses in your key");
+        // solium-disable-next-line security/no-block-members
+        require(expiration == 0 || expiration >= now, "Please specify expiration date in the future");
+        
+        // solium-disable-next-line security/no-block-members
+        if (key.expiration != 0 && key.expiration < now) {
+            delete keys[id][from];
+            revert("Your key has expired");
+        }
+        
 
-        if (uses > 0 && uses == key.uses) {
-            keys[id][from].exists = false;
-        } else {
-            keys[id][from].uses = keys[id][from].uses.sub(uses);
+        require(
+            !keys[id][to].exists || (keys[id][to].transferable == transferable && keys[id][to].expiration == expiration),
+            "Another matching key already exists for the receiver, please revoke it before transfer"
+            );
+        
+        if (key.uses > 0) {
+            if (uses == key.uses) {
+                delete keys[id][from];
+            } else {
+                keys[id][from].uses = keys[id][from].uses.sub(uses);
+            }
         }
 
         if(keys[id][to].exists) {
-            // Merge capabilities (note: this can be a problem since it might expand capabilities)
-            keys[id][to].transferable = keys[id][to].transferable || transferable;
-            keys[id][to].expiration = keys[id][to].expiration.max256(expiration);
-            keys[id][to].uses = keys[id][to].uses.add(uses);
+            if (uses == 0) {
+                keys[id][to].uses = 0;
+            } else {
+                keys[id][to].uses = keys[id][to].uses.add(uses);
+            }
         } else {
             keys[id][to].exists = true;
             keys[id][to].transferable = transferable;
@@ -192,12 +202,14 @@ contract Protected {
     function unlock(bytes32 id) internal returns (bool) {
         bool used = false;
         Key memory key = keys[id][msg.sender];
+        
+        // solium-disable security/no-block-members
         if (
             key.exists &&
             (key.expiration == 0 || key.expiration >= now)
         ) {
             if (key.uses == 1) {
-                keys[id][msg.sender].exists = false;
+                delete keys[id][msg.sender];
             } else if (key.uses > 1){
                 keys[id][msg.sender].uses --;
             }
