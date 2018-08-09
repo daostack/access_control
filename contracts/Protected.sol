@@ -87,9 +87,7 @@ contract Protected {
         Key memory key = keys[id][from];
         require(key.exists, "Sender doesn't own the specified key");
         require(key.transferable, "Sender's key isn't a transferable key");
-        //require(expiration != 0 || key.expiration == 0, "Your key is expirable, please specify an expiration date for transferred key");
         require(key.expiration == 0 || expiration <= key.expiration, "Your key has shorter expiration date than required");
-        //require(uses != 0 || key.uses == 0, "Your key is limited in uses, please specify uses count for transferred key");
         require(key.uses == 0 || uses <= key.uses, "You don't have enough uses in your key");
         // solium-disable-next-line security/no-block-members
         require(expiration == 0 || expiration >= now, "Please specify expiration date in the future");
