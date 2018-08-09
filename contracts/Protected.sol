@@ -113,10 +113,12 @@ contract Protected {
         }
 
         if(keys[id][to].exists) {
-            if (uses == 0 || keys[id][to].uses == 0) {
-                keys[id][to].uses = 0;
-            } else {
-                keys[id][to].uses = keys[id][to].uses.add(uses);
+            if (keys[id][to].uses != 0) {
+                if (uses == 0) {
+                    keys[id][to].uses = 0;
+                } else {
+                    keys[id][to].uses = keys[id][to].uses.add(uses);
+                }
             }
         } else {
             keys[id][to].exists = true;
