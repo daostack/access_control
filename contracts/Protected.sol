@@ -95,10 +95,8 @@ contract Protected {
         require(expiration == 0 || expiration >= now, "Please specify expiration date in the future");
         
         // solium-disable-next-line security/no-block-members
-        if (key.expiration != 0 && key.expiration < now) {
-            delete keys[id][from];
-            revert("Your key has expired");
-        }
+        require(key.expiration == 0 || key.expiration >= now, "Your key has expired");
+        
         
 
         require(
@@ -115,7 +113,7 @@ contract Protected {
         }
 
         if(keys[id][to].exists) {
-            if (uses == 0) {
+            if (uses == 0 || keys[id][to].uses == 0) {
                 keys[id][to].uses = 0;
             } else {
                 keys[id][to].uses = keys[id][to].uses.add(uses);
