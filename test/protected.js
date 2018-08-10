@@ -58,7 +58,7 @@ contract("Protected", function(accounts) {
     await protectedController.transferKey(
       "registerScheme",
       accounts[1],
-      true,
+      false,
       web3.eth.getBlock(web3.eth.blockNumber).timestamp + 60 * 60 * 24,
       1
     );
@@ -69,6 +69,27 @@ contract("Protected", function(accounts) {
       (await protectedController.schemesRegistered.call()).toNumber() ==
         schemesRegistered + 1
     );
+  });
+
+  it("should revert when transfering non transferable key", async function() {
+    var protectedController = await ProtectedController.deployed();
+
+    await assertRevert(
+      protectedController.transferKey(
+        "registerScheme",
+        accounts[2],
+        false,
+        web3.eth.getBlock(web3.eth.blockNumber).timestamp + 60 * 60 * 12,
+        1,
+        { from: accounts[1] }
+      )
+    );
+  });
+
+  it("should revoke key", async function() {
+    var protectedController = await ProtectedController.deployed();
+
+    // TODO: Implement
   });
 
   // @notice This test should be last as it change time
