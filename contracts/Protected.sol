@@ -1,6 +1,5 @@
 pragma solidity ^0.4.24;
 
-import "zeppelin-solidity/contracts/math/Math.sol";
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
 
 
