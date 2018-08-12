@@ -13,27 +13,28 @@ contract ProtectedController is Protected {
         /*
             The sender has *2 days from now* to register *up to 10* schemes, he *can transfer* this capability to other accounts
         */
-        lock("registerScheme");
-        transferKeyFrom("registerScheme", this, msg.sender, true, now + 2 days, 10);
+        
+        // solium-disable-next-line security/no-block-members
+        setKey("registerScheme", msg.sender, true, now + 2 days, 10);
 
         /*
             Only the sender can reset the schemes at any time, only once.
         */
-        lock("reset");
-        transferKeyFrom("reset", this, msg.sender, false, 0, 1);
+        setKey("reset", msg.sender, false, 0, 1);
     }
 
-    function registerScheme() only(unlock("registerScheme")) public {
+    function registerScheme() public only(unlock("registerScheme")) {
         /*
             Once registered, *only* the original registerer can set the scheme params *once* *within 4 days*.
         */
-        lock(keccak256("setParam", schemesRegistered));
-        transferKeyFrom(keccak256("setParam", schemesRegistered), this, msg.sender, false, now + 4 days, 1);
+
+        // solium-disable-next-line security/no-block-members
+        setKey(keccak256("setParam", schemesRegistered), msg.sender, false, now + 4 days, 1);
 
         schemesRegistered++;
     }
 
-    function setParam(uint scheme, uint param) only(unlock(keccak256("setParam", scheme))) public {
+    function setParam(uint scheme, uint param) public only(unlock(keccak256("setParam", scheme))) {
         schemes[scheme] = param;
     }
 

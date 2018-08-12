@@ -50,6 +50,43 @@ contract("Protected", function(accounts) {
     await assertRevert(protectedController.setParam(5, 200));
   });
 
+  it("should transfer key", async function() {
+    var protectedController = await ProtectedController.deployed();
+
+    var schemesRegistered = (await protectedController.schemesRegistered.call()).toNumber();
+
+    await protectedController.transferKey(
+      "registerScheme",
+      accounts[1],
+      false,
+      web3.eth.getBlock(web3.eth.blockNumber).timestamp + 60 * 60 * 24,
+      1
+    );
+
+    await protectedController.registerScheme({ from: accounts[1] });
+
+    assert.isTrue(
+      (await protectedController.schemesRegistered.call()).toNumber() ==
+        schemesRegistered + 1
+    );
+  });
+
+  it("should revert when transfering non transferable key", async function() {
+    var protectedController = await ProtectedController.deployed();
+
+    await assertRevert(
+      protectedController.transferKey(
+        "registerScheme",
+        accounts[2],
+        false,
+        web3.eth.getBlock(web3.eth.blockNumber).timestamp + 60 * 60 * 12,
+        1,
+        { from: accounts[1] }
+      )
+    );
+  });
+
+  // @notice This test should be last as it change time
   it("should revert executing locked function when date expired", async function() {
     var protectedController = await ProtectedController.deployed();
 

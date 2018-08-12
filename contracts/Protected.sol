@@ -11,7 +11,6 @@ import "zeppelin-solidity/contracts/math/SafeMath.sol";
  *      Use the `only(..)` modifier to lock a resource/operation with a lock.
  */
 contract Protected {
-    using Math for uint;
     using SafeMath for uint;
 
     /**
@@ -28,239 +27,199 @@ contract Protected {
     }
 
     //      id                 owner      key
-    mapping(bytes32 => mapping(address => Key[])) public keys;
+    mapping(bytes32 => mapping(address => Key)) public keys;
 
-    event Lock(bytes32 indexed id);
-    event Transfer(bytes32 indexed id, address indexed from, address indexed to, bool transferable, uint expiration, uint uses);
-    event Use(bytes32 indexed id, address indexed owner);
-    event Revoke(bytes32 indexed id, address indexed owner);
+    event Transfer(bytes32 indexed _id, address indexed _from, address indexed _to, bool _transferable, uint _expiration, uint _uses);
+    event Use(bytes32 indexed _id, address indexed _owner);
+    event Revoke(bytes32 indexed _id, address indexed _owner);
 
     /**
-     * @dev Create a new key for a new lock. The owner of the key is the contract itself.
-     * @notice The convention for lock ids is:
-     *           - restricting a method: `lock(methodName)`
-     *           - restricting to specific params: `lock(keccak256(methodName, param1, param2))`
-     *           - use ANYTHING for irrelevent parameters: `lock(keccak256(methodName, param1, ANYTHING, param3))`
-     *           - traling `ANYTHING`s are implied: use `lock(keccak256(methodName, param1))` instead of `lock(keccak256(methodName, param1, ANYTHING))`
-     * @param id unique lock id
+     * @dev Revoke a given key making it non existent.
+     * @param _id lock id,
+     * @param _owner the owner of the key.
      */
-    function lock(
-        bytes32 id
-    ) internal {        
-        if (keys[id][this].length == 0){
-            keys[id][this].length++;
-            keys[id][this][0].exists = true;
-            keys[id][this][0].transferable = true;
-
-            emit Lock(id);
-        }
+    function revokeFrom(bytes32 _id, address _owner) internal {
+        keys[_id][_owner].exists = false;
+        emit Revoke(_id, _owner);
     }
 
     /**
-     * @dev Destroy a given key making it non existent.
-     * @param id lock id,
-     * @param owner the owner of the key.
+     * @dev Revoke the sender's key.
+     * @param _id lock id,
      */
-    function revokeFrom(bytes32 id, address owner, uint i) internal {
-        keys[id][owner][i].exists = false;
-        emit Revoke(id, owner);
+    function revoke(bytes32 _id) public {
+        revokeFrom(_id, msg.sender);
     }
 
     /**
-     * @dev Destroy the sender's key.
-     * @param id lock id,
+     * @dev Sets a key for a lock id for an address.
+     * @notice This function should be used only by the contract itself to create new keys.
+     * @notice This function overwrites the existing key (if there is one).
+     * @param _id lock id.
+     * @param _to the new key owner.
+     * @param _transferable will the new key be transferable.
+     * @param _expiration expiration date (in seconds) for the key.
+     * @param _uses uses count for the key.
      */
-    function revoke(bytes32 id, uint i) public {
-        revokeFrom(id, msg.sender, i);
-    }
+    function setKey (
+        bytes32 _id,
+        address _to,
+        bool _transferable,
+        uint _expiration,
+        uint _uses) internal {
+        keys[_id][_to] = Key(true, _transferable, _expiration, _uses);
 
-    /**
-     * @dev Destroy the sender's key.
-     * @param id lock id,
-     */
-    function revokeAllFrom(bytes32 id, address owner) internal {
-        for(uint i = 0; i < keys[id][owner].length; i++) {
-            revokeFrom(id, owner, i);
-        }
-    }
-
-    /**
-     * @dev Destroy the sender's key.
-     * @param id lock id,
-     */
-    function revokeAll(bytes32 id) public {
-        revokeAllFrom(id, msg.sender);
+        emit Transfer(_id, this, _to, _transferable, _expiration, _uses);
     }
 
     /**
      * @dev Transfer part of the capabilities of the owner to another account.
      * @notice if the next owner already has a key for this lock id, the keys will be merged into a single key.
-     * @param id lock id.
-     * @param from current owner.
-     * @param to next owner.
-     * @param transferable can the next owner transfer the key onwards to another account.
-     * @param expiration can only be lower than current expiration.
-     * @param uses can only be smaller than current uses.
+     * @param _id lock id.
+     * @param _from current owner.
+     * @param _to next owner.
+     * @param _transferable can the next owner transfer the key onwards to another account.
+     * @param _expiration can only be lower than current expiration.
+     * @param _uses can only be smaller than current uses.
      */
     function transferKeyFrom(
-        bytes32 id,
-        uint i,
-        address from,
-        address to,
-        bool transferable,
-        uint expiration,
-        uint uses
+        bytes32 _id,
+        address _from,
+        address _to,
+        bool _transferable,
+        uint _expiration,
+        uint _uses
     ) internal {
-        Key memory key = keys[id][from][i];
-        require(key.exists);
-        require(key.transferable);
-        require(expiration != 0 || key.expiration == 0);
-        require(expiration <= key.expiration || key.expiration == 0);
-        require(uses != 0 || key.uses == 0);
-        require(uses <= key.uses || key.uses == 0);
+        Key memory key = keys[_id][_from];
+        require(isValidKey(_id, _from), "Specified key is invalid");
+        require(key.transferable, "Sender's key isn't a transferable key");
+        require(key.expiration == 0 || _expiration <= key.expiration, "Your key has shorter expiration date than required");
+        require(key.uses == 0 || _uses <= key.uses, "You don't have enough uses in your key");
+        // solium-disable-next-line security/no-block-members
+        require(isValidExpiration(_expiration), "Please specify expiration date in the future");
 
-        if (uses > 0 && uses == key.uses) {
-            keys[id][from][i].exists = false;
-        } else if (key.uses > 0) {
-            keys[id][from][i].uses = keys[id][from][i].uses.sub(uses);
-        }
-
-        bool merged = false;
-
-        if (keys[id][to].length > 0) {
-            for(uint k = 0; k < keys[id][to].length; k++) {
-                if (keys[id][to][k].exists && keys[id][to][k].transferable == transferable && keys[id][to][k].expiration == expiration) {
-                    merged = true;
-                    if (keys[id][to][k].uses > 0) {
-                        keys[id][to][k].uses = keys[id][to][k].uses.add(uses);
-                    }
-                    break;
-                }
+        require(
+            !keys[_id][_to].exists || (keys[_id][_to].transferable == _transferable && keys[_id][_to].expiration == _expiration),
+            "Another matching key already exists for the receiver, please revoke it before transfer"
+            );
+        
+        if (key.uses > 0) {
+            if (_uses == key.uses) {
+                delete keys[_id][_from];
+            } else {
+                keys[_id][_from].uses = keys[_id][_from].uses.sub(_uses);
             }
         }
 
-        if(!merged) {
-            Key memory newKey = Key(true, transferable, expiration, uses);
-            keys[id][to].push(newKey);
+        if (keys[_id][_to].exists) {
+            if (keys[_id][_to].uses != 0) {
+                if (_uses == 0) {
+                    keys[_id][_to].uses = 0;
+                } else {
+                    keys[_id][_to].uses = keys[_id][_to].uses.add(_uses);
+                }
+            }
+        } else {
+            keys[_id][_to] = Key(true, _transferable, _expiration, _uses);
         }
 
-        emit Transfer(id, from, to, transferable, expiration, uses);
+        emit Transfer(_id, _from, _to, _transferable, _expiration, _uses);
     }
 
-    function transferKeyFrom(
-        bytes32 id,
-        address from,
-        address to,
-        bool transferable,
-        uint expiration,
-        uint uses
-    ) internal {
-        transferKeyFrom(id, 0, from, to, transferable, expiration, uses);
+    function isValidExpiration(uint _expiration) public view returns (bool) {
+        // solium-disable-next-line security/no-block-members
+        return _expiration == 0 || _expiration >= now;
+    }
+
+    function isValidKey(bytes32 _id, address _owner) public view returns (bool) {
+        Key memory key = keys[_id][_owner];
+        return key.exists && isValidExpiration(key.expiration);
     }
 
     /**
      * @dev Transfer part of the capabilities of the sender to another account.
      * @notice if the next owner already has a key for this lock id, the keys will be merged into a single key.
-     * @param id lock id.
-     * @param to next owner.
-     * @param transferable can the next owner transfer the key onwards to another account.
-     * @param expiration can only be lower than current expiration.
-     * @param uses can only be smaller than current uses.
+     * @param _id lock id.
+     * @param _to next owner.
+     * @param _transferable can the next owner transfer the key onwards to another account.
+     * @param _expiration can only be lower than current expiration.
+     * @param _uses can only be smaller than current uses.
      */
     function transferKey(
-        bytes32 id,
-        uint i,
-        address to,
-        bool transferable,
-        uint expiration,
-        uint uses
+        bytes32 _id,
+        address _to,
+        bool _transferable,
+        uint _expiration,
+        uint _uses
     ) public {
         transferKeyFrom(
-            id,
-            i,
+            _id,
             msg.sender,
-            to,
-            transferable,
-            expiration,
-            uses
+            _to,
+            _transferable,
+            _expiration,
+            _uses
         );
     }
 
     /**
      * @dev Transfer all of the capabilities of the owner to another account.
      * @notice if the next owner already has a key for this lock id, the keys will be merged into a single key.
-     * @param id lock id.
-     * @param from current owner.
-     * @param to next owner.
+     * @param _id lock id.
+     * @param _from current owner.
+     * @param _to next owner.
      */
-    function transferAllFrom(bytes32 id, address from, address to) internal {
-        for(uint i = 0 ; i < keys[id][from].length; i++) {
-            Key memory key = keys[id][from][i];
-            transferKeyFrom(id, i, from, to, true, key.expiration, key.uses);
-        }
+    function transferAllFrom(bytes32 _id, address _from, address _to) internal {
+        Key memory key = keys[_id][_from];
+        transferKeyFrom(_id, _from, _to, true, key.expiration, key.uses);
     }
 
     /**
      * @dev Transfer all of the capabilities of the sender to another account.
      * @notice if the next owner already has a key for this lock id, the keys will be merged into a single key.
-     * @param id lock id.
-     * @param to next owner.
+     * @param _id lock id.
+     * @param _to next owner.
      */
-    function transferAll(bytes32 id, address to) public {
-        transferAllFrom(id, msg.sender, to);
+    function transferAll(bytes32 _id, address _to) public {
+        transferAllFrom(_id, msg.sender, _to);
     }
      
-    modifier only(bool condition) {
-        require(condition, "You don't have the permission required for this operation");
-        _;
+    modifier only(bool _condition) {
+        require(_condition, "You don't have the permission required for this operation");
+        _;   
     }
 
     /**
      * @dev A function that unlock a function lock .
-            The lock ids are "ORed" together, meaning the lock can be opened by a key that unlocks any one of the ids.
+            Unlock function returns a boolean, which can be used with other unlock function calls and checked together with the `only` modifier.
             This allows us to create complex boolean predicates:
             ```
             function myMethod()
-                only(["louis", "tom"])
-                only(["jerry"])
+                only((unlock("louis") || unlock("tom")) && unlock("jerry"))
             {
                 // restricted to: (louis || tom) && jerry
             }
             ```
-     * @notice the function tries each key in order until one matches, the key that matches will be used one time. if none match, a revert occurs.
-     * @param id the id of the lock which the user want to unlock.
+     * @param _id the id of the lock which the user want to unlock.
      */
 
-    function unlock(bytes32 id, uint keyPos) internal returns (bool) {
-        Key memory key = keys[id][msg.sender][keyPos];
-        if (
-            key.exists &&
-            (key.expiration == 0 || key.expiration >= now)
-        ) {
+    function unlock(bytes32 _id) internal returns (bool) {
+        bool used = false;
+        Key memory key = keys[_id][msg.sender];
+        
+        if (isValidKey(_id, msg.sender)) {
             if (key.uses == 1) {
-                keys[id][msg.sender][keyPos].exists = false;
+                delete keys[_id][msg.sender];
             } else if (key.uses > 1){
-                keys[id][msg.sender][keyPos].uses --;
+                keys[_id][msg.sender].uses --;
             }
-            emit Use(id, msg.sender);
-            return true;
+            emit Use(_id, msg.sender);
+            used = true;
         }
-        return false;
+        return used;
     }
 
-    function unlock(bytes32 id) internal returns (bool) {
-        // @notice the loop is intended to prevent a case where the operation faied
-        // because one of the key was expired
-        for (uint i = 0; i < keys[id][msg.sender].length; i++) {
-            if (unlock(id, i)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    function toBytes(uint256 x) public pure returns (bytes b) {
+    function toBytes(uint256 x) private pure returns (bytes b) {
         b = new bytes(32);
         // solium-disable-next-line security/no-inline-assembly
         assembly { mstore(add(b, 32), x) }

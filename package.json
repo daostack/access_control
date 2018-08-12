@@ -29,5 +29,8 @@
   "homepage": "https://github.com/daostack/access_control#readme",
   "dependencies": {
     "openzeppelin-solidity": "1.11.0"
+  },
+  "devDependencies": {
+    "eth-gas-reporter": "^0.1.10"
   }
 }
