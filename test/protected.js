@@ -86,12 +86,6 @@ contract("Protected", function(accounts) {
     );
   });
 
-  it("should revoke key", async function() {
-    var protectedController = await ProtectedController.deployed();
-
-    // TODO: Implement
-  });
-
   // @notice This test should be last as it change time
   it("should revert executing locked function when date expired", async function() {
     var protectedController = await ProtectedController.deployed();

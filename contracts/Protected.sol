@@ -90,10 +90,10 @@ contract Protected {
         require(key.expiration == 0 || expiration <= key.expiration, "Your key has shorter expiration date than required");
         require(key.uses == 0 || uses <= key.uses, "You don't have enough uses in your key");
         // solium-disable-next-line security/no-block-members
-        require(expiration == 0 || expiration >= now, "Please specify expiration date in the future");
+        require(isValidExpiration(expiration), "Please specify expiration date in the future");
         
-        // solium-disable-next-line security/no-block-members
-        require(key.expiration == 0 || key.expiration >= now, "Your key has expired");
+        
+        require(isValidExpiration(key.expiration), "Your key has expired");
         
         
 
@@ -126,6 +126,11 @@ contract Protected {
         }
 
         emit Transfer(id, from, to, transferable, expiration, uses);
+    }
+
+    function isValidExpiration(uint expiration) public view returns (bool) {
+        // solium-disable-next-line security/no-block-members
+        return expiration == 0 || expiration >= now;
     }
 
     /**
@@ -201,11 +206,7 @@ contract Protected {
         bool used = false;
         Key memory key = keys[id][msg.sender];
         
-        // solium-disable security/no-block-members
-        if (
-            key.exists &&
-            (key.expiration == 0 || key.expiration >= now)
-        ) {
+        if (key.exists && isValidExpiration(key.expiration)) {
             if (key.uses == 1) {
                 delete keys[id][msg.sender];
             } else if (key.uses > 1){
