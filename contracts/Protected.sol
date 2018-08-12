@@ -85,7 +85,7 @@ contract Protected {
         uint uses
     ) internal {
         Key memory key = keys[id][from];
-        require(isValidKey(key.exists, key.expiration), "Specified key is invalid");
+        require(isValidKey(id, from), "Specified key is invalid");
         require(key.transferable, "Sender's key isn't a transferable key");
         require(key.expiration == 0 || expiration <= key.expiration, "Your key has shorter expiration date than required");
         require(key.uses == 0 || uses <= key.uses, "You don't have enough uses in your key");
@@ -128,8 +128,9 @@ contract Protected {
         return expiration == 0 || expiration >= now;
     }
 
-    function isValidKey(bool exists, uint expiration) public view returns (bool) {
-        return exists && isValidExpiration(expiration);
+    function isValidKey(bytes32 id, address owner) public view returns (bool) {
+        Key memory key = keys[id][owner];
+        return key.exists && isValidExpiration(key.expiration);
     }
 
     /**
@@ -205,7 +206,7 @@ contract Protected {
         bool used = false;
         Key memory key = keys[id][msg.sender];
         
-        if (isValidKey(key.exists, key.expiration)) {
+        if (isValidKey(id, msg.sender)) {
             if (key.uses == 1) {
                 delete keys[id][msg.sender];
             } else if (key.uses > 1){
