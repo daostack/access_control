@@ -91,11 +91,7 @@ contract Protected {
         require(key.uses == 0 || uses <= key.uses, "You don't have enough uses in your key");
         // solium-disable-next-line security/no-block-members
         require(isValidExpiration(expiration), "Please specify expiration date in the future");
-        
-        
         require(isValidExpiration(key.expiration), "Your key has expired");
-        
-        
 
         require(
             !keys[id][to].exists || (keys[id][to].transferable == transferable && keys[id][to].expiration == expiration),
