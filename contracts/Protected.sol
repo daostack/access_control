@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "./SafeMath120.sol";
 
 
 /**
@@ -11,7 +11,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
  *      Use the `only(..)` modifier to lock a resource/operation with a lock.
  */
 contract Protected {
-    using SafeMath for uint;
+    using SafeMath for uint120;
 
     /**
      * Random placeholder value for parameters whose value doesnt matter in the lock id
@@ -22,14 +22,14 @@ contract Protected {
     struct Key {
         bool exists;
         bool transferable;
-        uint expiration; // zero = no expiration
-        uint uses; // zero = infinite uses
+        uint120 expiration; // zero = no expiration
+        uint120 uses; // zero = infinite uses
     }
 
     //      id                 owner      key
     mapping(bytes32 => mapping(address => Key)) public keys;
 
-    event Transfer(bytes32 indexed _id, address indexed _from, address indexed _to, bool _transferable, uint _expiration, uint _uses);
+    event Transfer(bytes32 indexed _id, address indexed _from, address indexed _to, bool _transferable, uint120 _expiration, uint120 _uses);
     event Use(bytes32 indexed _id, address indexed _owner);
     event Revoke(bytes32 indexed _id, address indexed _owner);
 
@@ -46,7 +46,7 @@ contract Protected {
         revokeFrom(_id, msg.sender);
     }
 
-    function isValidExpiration(uint _expiration) public view returns (bool) {
+    function isValidExpiration(uint120 _expiration) public view returns (bool) {
         // solium-disable-next-line security/no-block-members
         return _expiration == 0 || _expiration >= now;
     }
@@ -69,8 +69,8 @@ contract Protected {
         bytes32 _id,
         address _to,
         bool _transferable,
-        uint _expiration,
-        uint _uses
+        uint120 _expiration,
+        uint120 _uses
     ) public
     {
         transferKeyFrom(
@@ -117,8 +117,8 @@ contract Protected {
         bytes32 _id,
         address _to,
         bool _transferable,
-        uint _expiration,
-        uint _uses
+        uint120 _expiration,
+        uint120 _uses
         ) internal
     {
         keys[_id][_to] = Key(true, _transferable, _expiration, _uses);
@@ -148,8 +148,8 @@ contract Protected {
         address _from,
         address _to,
         bool _transferable,
-        uint _expiration,
-        uint _uses
+        uint120 _expiration,
+        uint120 _uses
         ) internal
     {
         Key memory key = keys[_id][_from];

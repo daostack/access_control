@@ -16,7 +16,7 @@ contract ProtectedController is Protected {
         */
         
         // solium-disable-next-line security/no-block-members
-        setKey("registerScheme", msg.sender, true, now + 2 days, 10);
+        setKey("registerScheme", msg.sender, true, uint120(now + 2 days), 10);
 
         /*
             Only the sender can reset the schemes at any time, only once.
@@ -30,7 +30,7 @@ contract ProtectedController is Protected {
         */
 
         // solium-disable-next-line security/no-block-members
-        setKey(keccak256("setParam", schemesRegistered), msg.sender, false, now + 4 days, 1);
+        setKey(keccak256("setParam", schemesRegistered), msg.sender, false, uint120(now + 4 days), 1);
 
         schemesRegistered++;
     }
