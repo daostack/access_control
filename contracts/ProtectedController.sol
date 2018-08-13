@@ -2,6 +2,7 @@ pragma solidity ^0.4.24;
 
 import "./Protected.sol";
 
+
 /**
  * @title a simple example of how to use the Protected base class.
  */
@@ -29,17 +30,17 @@ contract ProtectedController is Protected {
         */
 
         // solium-disable-next-line security/no-block-members
-        setKey(keccak256("setParam", schemesRegistered), msg.sender, false, now + 4 days, 1);
+        setKey(keccak256(abi.encodePacked("setParam", schemesRegistered)), msg.sender, false, uint120(now + 4 days), 1);
 
         schemesRegistered++;
     }
 
-    function setParam(uint scheme, uint param) public only(unlock(keccak256("setParam", scheme))) {
+    function setParam(uint scheme, uint param) public only(unlock(keccak256(abi.encodePacked("setParam", scheme)))) {
         schemes[scheme] = param;
     }
 
     function reset() public only(unlock("reset")) {
-        for(uint i = 0; i < schemesRegistered; i++) {
+        for (uint i = 0; i < schemesRegistered; i++) {
             schemes[i] = 0;
         }
         schemesRegistered = 0;

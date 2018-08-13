@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
-import "zeppelin-solidity/contracts/math/Math.sol";
-import "zeppelin-solidity/contracts/math/SafeMath.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+
 
 /**
  * @title Base class for contracts which deal with fine-grained permissions to their operations.
@@ -17,7 +17,8 @@ contract Protected {
      * Random placeholder value for parameters whose value doesnt matter in the lock id
      * e.g. `lock(keccak256(methodname, param1, ANYTHING, param2))`
      */
-    uint internal constant ANYTHING = uint(keccak256(toBytes(uint(this) + 1)));
+    
+    uint constant internal ANYTHING = uint(keccak256(abi.encodePacked(uint(this) + 1)));
 
     struct Key {
         bool exists;
@@ -33,6 +34,77 @@ contract Protected {
     event Use(bytes32 indexed _id, address indexed _owner);
     event Revoke(bytes32 indexed _id, address indexed _owner);
 
+    modifier only(bool _condition) {
+        require(_condition, "You don't have the permission required for this operation");
+        _;   
+    }
+    
+    /**
+     * @dev Revoke the sender's key.
+     * @param _id lock id.
+     */
+    function revoke(bytes32 _id) public {
+        revokeFrom(_id, msg.sender);
+    }
+
+    /**
+     * @dev Checks if the expiration date is still valid or the key was expired.
+     * @param _expiration the expiration date of the key to check.
+     * @return true if the expiration date is still valid, false if already expired.
+     */
+    function isValidExpiration(uint _expiration) public view returns (bool) {
+        // solium-disable-next-line security/no-block-members
+        return _expiration == 0 || _expiration >= now;
+    }
+
+    /**
+     * @dev Checks if a key can be used.
+     * @param _id lock id.
+     * @param _owner the address of the key owner.
+     * @return true if the owner has a usable key for the given lock id, false if the key is unusable or not exists.
+     */
+    function isValidKey(bytes32 _id, address _owner) public view returns (bool) {
+        Key memory key = keys[_id][_owner];
+        return key.exists && isValidExpiration(key.expiration);
+    }
+
+    /**
+     * @dev Transfer part of the capabilities of the sender to another account.
+     * @notice if the next owner already has a key for this lock id, the keys will be merged into a single key.
+     * @param _id lock id.
+     * @param _to next owner.
+     * @param _transferable can the next owner transfer the key onwards to another account.
+     * @param _expiration can only be lower than current expiration.
+     * @param _uses can only be smaller than current uses.
+     */
+    function transferKey(
+        bytes32 _id,
+        address _to,
+        bool _transferable,
+        uint _expiration,
+        uint _uses
+    ) public
+    {
+        transferKeyFrom(
+            _id,
+            msg.sender,
+            _to,
+            _transferable,
+            _expiration,
+            _uses
+        );
+    }
+
+    /**
+     * @dev Transfer all of the capabilities of the sender to another account.
+     * @notice if the next owner already has a key for this lock id, the keys will be merged into a single key.
+     * @param _id lock id.
+     * @param _to next owner.
+     */
+    function transferAll(bytes32 _id, address _to) public {
+        transferAllFrom(_id, msg.sender, _to);
+    }
+
     /**
      * @dev Revoke a given key making it non existent.
      * @param _id lock id,
@@ -41,14 +113,6 @@ contract Protected {
     function revokeFrom(bytes32 _id, address _owner) internal {
         keys[_id][_owner].exists = false;
         emit Revoke(_id, _owner);
-    }
-
-    /**
-     * @dev Revoke the sender's key.
-     * @param _id lock id,
-     */
-    function revoke(bytes32 _id) public {
-        revokeFrom(_id, msg.sender);
     }
 
     /**
@@ -66,10 +130,19 @@ contract Protected {
         address _to,
         bool _transferable,
         uint _expiration,
-        uint _uses) internal {
+        uint _uses
+        ) internal
+    {
         keys[_id][_to] = Key(true, _transferable, _expiration, _uses);
 
-        emit Transfer(_id, this, _to, _transferable, _expiration, _uses);
+        emit Transfer(
+            _id,
+            this,
+            _to,
+            _transferable,
+            _expiration,
+            _uses
+        );
     }
 
     /**
@@ -89,7 +162,8 @@ contract Protected {
         bool _transferable,
         uint _expiration,
         uint _uses
-    ) internal {
+        ) internal
+    {
         Key memory key = keys[_id][_from];
         require(isValidKey(_id, _from), "Specified key is invalid");
         require(key.transferable, "Sender's key isn't a transferable key");
@@ -123,38 +197,9 @@ contract Protected {
             keys[_id][_to] = Key(true, _transferable, _expiration, _uses);
         }
 
-        emit Transfer(_id, _from, _to, _transferable, _expiration, _uses);
-    }
-
-    function isValidExpiration(uint _expiration) public view returns (bool) {
-        // solium-disable-next-line security/no-block-members
-        return _expiration == 0 || _expiration >= now;
-    }
-
-    function isValidKey(bytes32 _id, address _owner) public view returns (bool) {
-        Key memory key = keys[_id][_owner];
-        return key.exists && isValidExpiration(key.expiration);
-    }
-
-    /**
-     * @dev Transfer part of the capabilities of the sender to another account.
-     * @notice if the next owner already has a key for this lock id, the keys will be merged into a single key.
-     * @param _id lock id.
-     * @param _to next owner.
-     * @param _transferable can the next owner transfer the key onwards to another account.
-     * @param _expiration can only be lower than current expiration.
-     * @param _uses can only be smaller than current uses.
-     */
-    function transferKey(
-        bytes32 _id,
-        address _to,
-        bool _transferable,
-        uint _expiration,
-        uint _uses
-    ) public {
-        transferKeyFrom(
+        emit Transfer(
             _id,
-            msg.sender,
+            _from,
             _to,
             _transferable,
             _expiration,
@@ -171,22 +216,14 @@ contract Protected {
      */
     function transferAllFrom(bytes32 _id, address _from, address _to) internal {
         Key memory key = keys[_id][_from];
-        transferKeyFrom(_id, _from, _to, true, key.expiration, key.uses);
-    }
-
-    /**
-     * @dev Transfer all of the capabilities of the sender to another account.
-     * @notice if the next owner already has a key for this lock id, the keys will be merged into a single key.
-     * @param _id lock id.
-     * @param _to next owner.
-     */
-    function transferAll(bytes32 _id, address _to) public {
-        transferAllFrom(_id, msg.sender, _to);
-    }
-     
-    modifier only(bool _condition) {
-        require(_condition, "You don't have the permission required for this operation");
-        _;   
+        transferKeyFrom(
+            _id,
+            _from,
+            _to,
+            true,
+            key.expiration,
+            key.uses
+        );
     }
 
     /**
@@ -201,6 +238,7 @@ contract Protected {
             }
             ```
      * @param _id the id of the lock which the user want to unlock.
+     * @return true if the key was used, false no matching key was found.
      */
 
     function unlock(bytes32 _id) internal returns (bool) {
@@ -210,18 +248,12 @@ contract Protected {
         if (isValidKey(_id, msg.sender)) {
             if (key.uses == 1) {
                 delete keys[_id][msg.sender];
-            } else if (key.uses > 1){
+            } else if (key.uses > 1) {
                 keys[_id][msg.sender].uses --;
             }
             emit Use(_id, msg.sender);
             used = true;
         }
         return used;
-    }
-
-    function toBytes(uint256 x) private pure returns (bytes b) {
-        b = new bytes(32);
-        // solium-disable-next-line security/no-inline-assembly
-        assembly { mstore(add(b, 32), x) }
     }
 }
