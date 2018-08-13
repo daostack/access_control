@@ -17,7 +17,8 @@ contract Protected {
      * Random placeholder value for parameters whose value doesnt matter in the lock id
      * e.g. `lock(keccak256(methodname, param1, ANYTHING, param2))`
      */
-    uint internal ANYTHING = uint(keccak256(abi.encodePacked(uint(this) + 1)));
+    
+    uint constant internal ANYTHING = uint(keccak256(abi.encodePacked(uint(this) + 1)));
 
     struct Key {
         bool exists;
@@ -40,17 +41,28 @@ contract Protected {
     
     /**
      * @dev Revoke the sender's key.
-     * @param _id lock id,
+     * @param _id lock id.
      */
     function revoke(bytes32 _id) public {
         revokeFrom(_id, msg.sender);
     }
 
+    /**
+     * @dev Checks if the expiration date is still valid or the key was expired.
+     * @param _expiration the expiration date of the key to check.
+     * @return true if the expiration date is still valid, false if already expired.
+     */
     function isValidExpiration(uint _expiration) public view returns (bool) {
         // solium-disable-next-line security/no-block-members
         return _expiration == 0 || _expiration >= now;
     }
 
+    /**
+     * @dev Checks if a key can be used.
+     * @param _id lock id.
+     * @param _owner the address of the key owner.
+     * @return true if the owner has a usable key for the given lock id, false if the key is unusable or not exists.
+     */
     function isValidKey(bytes32 _id, address _owner) public view returns (bool) {
         Key memory key = keys[_id][_owner];
         return key.exists && isValidExpiration(key.expiration);
@@ -226,6 +238,7 @@ contract Protected {
             }
             ```
      * @param _id the id of the lock which the user want to unlock.
+     * @return true if the key was used, false no matching key was found.
      */
 
     function unlock(bytes32 _id) internal returns (bool) {
