@@ -23,7 +23,6 @@ install:
   - truffle version
 
 script:
-  - set -e
   - ganache-cli --gasLimit 6721975 2> /dev/null 1> /dev/null &
   - sleep 5 # to make sure ganache-cli is up and running before compiling
   - rm -rf build
@@ -31,4 +30,5 @@ script:
   - truffle migrate --reset --network development
   - truffle test
   - npm run solium
+  - npm run lint
   - kill -9 $(lsof -t -i:8545)

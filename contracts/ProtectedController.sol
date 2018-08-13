@@ -30,12 +30,12 @@ contract ProtectedController is Protected {
         */
 
         // solium-disable-next-line security/no-block-members
-        setKey(keccak256("setParam", schemesRegistered), msg.sender, false, now + 4 days, 1);
+        setKey(keccak256(abi.encodePacked("setParam", schemesRegistered)), msg.sender, false, uint120(now + 4 days), 1);
 
         schemesRegistered++;
     }
 
-    function setParam(uint scheme, uint param) public only(unlock(keccak256("setParam", scheme))) {
+    function setParam(uint scheme, uint param) public only(unlock(keccak256(abi.encodePacked("setParam", scheme)))) {
         schemes[scheme] = param;
     }
 

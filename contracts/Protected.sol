@@ -17,7 +17,7 @@ contract Protected {
      * Random placeholder value for parameters whose value doesnt matter in the lock id
      * e.g. `lock(keccak256(methodname, param1, ANYTHING, param2))`
      */
-    uint internal constant ANYTHING = uint(keccak256(toBytes(uint(this) + 1)));
+    uint internal ANYTHING = uint(keccak256(abi.encodePacked(uint(this) + 1)));
 
     struct Key {
         bool exists;
@@ -242,11 +242,5 @@ contract Protected {
             used = true;
         }
         return used;
-    }
-
-    function toBytes(uint256 x) private pure returns (bytes b) {
-        b = new bytes(32);
-        // solium-disable-next-line security/no-inline-assembly
-        assembly { mstore(add(b, 32), x) }
     }
 }
