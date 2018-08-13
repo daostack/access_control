@@ -157,14 +157,26 @@ contract("Protected", function(accounts) {
     );
   });
 
-  it("should revoke key", async function() {
+  it("should transfer all keys for lock", async function() {
     var protectedController = await ProtectedController.deployed();
 
     await protectedController.uselessFunc();
 
-    await protectedController.revoke("uselessFunc");
+    await protectedController.transferAll("uselessFunc", accounts[1]);
+
+    await protectedController.uselessFunc({ from: accounts[1] });
 
     await assertRevert(protectedController.uselessFunc());
+  });
+
+  it("should revoke key", async function() {
+    var protectedController = await ProtectedController.deployed();
+
+    await protectedController.uselessFunc({ from: accounts[1] });
+
+    await protectedController.revoke("uselessFunc", { from: accounts[1] });
+
+    await assertRevert(protectedController.uselessFunc({ from: accounts[1] }));
   });
 
   // @notice This test should be last as it change time

@@ -26,7 +26,7 @@ contract ProtectedController is Protected {
         /*
             Useless function lock to test revoke
         */
-        setKey("uselessFunc", msg.sender, false, 0, 3);
+        setKey("uselessFunc", msg.sender, true, 0, 5);
     }
 
     function registerScheme() public only(unlock("registerScheme")) {
