@@ -6,7 +6,9 @@
     "test": "test"
   },
   "scripts": {
-    "test": "truffle test"
+    "test": "truffle test",
+    "solium": "solium --dir ./contracts/",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
@@ -28,9 +30,11 @@
   },
   "homepage": "https://github.com/daostack/access_control#readme",
   "dependencies": {
-    "openzeppelin-solidity": "1.11.0"
+    "openzeppelin-solidity": "1.11.0",
+    "solium": "^1.1.8"
   },
   "devDependencies": {
+    "eslint": "^5.3.0",
     "eth-gas-reporter": "^0.1.10"
   }
 }
