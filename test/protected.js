@@ -27,6 +27,9 @@ contract("Protected", function(accounts) {
 
   it("should revert executing locked function when key already used", async function() {
     var protectedController = await ProtectedController.deployed();
+
+    await protectedController.reset();
+
     await assertRevert(protectedController.reset({ from: accounts[0] }));
   });
 

@@ -19,9 +19,9 @@ contract ProtectedController is Protected {
         setKey("registerScheme", msg.sender, true, now + 2 days, 10);
 
         /*
-            Only the sender can reset the schemes at any time, only once.
+            Only the sender can reset the schemes at any time, only twice.
         */
-        setKey("reset", msg.sender, false, 0, 1);
+        setKey("reset", msg.sender, false, 0, 2);
 
         /*
             Useless function lock to test revoke
