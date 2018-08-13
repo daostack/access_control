@@ -202,6 +202,32 @@ contract("Protected", function(accounts) {
       )
     );
   });
+
+  it("should transfer key when previous key already expired", async function() {
+    var protectedController = await ProtectedController.deployed();
+
+    await protectedController.giveRegisterSchemeKeyToAddress({
+      from: accounts[3]
+    });
+
+    var schemesRegistered = (await protectedController.schemesRegistered.call()).toNumber();
+
+    await protectedController.transferKey(
+      "registerScheme",
+      accounts[0],
+      true,
+      web3.eth.getBlock(web3.eth.blockNumber).timestamp + 60 * 60 * 24,
+      1,
+      { from: accounts[3] }
+    );
+
+    await protectedController.registerScheme();
+
+    assert.isTrue(
+      (await protectedController.schemesRegistered.call()).toNumber() ==
+        schemesRegistered + 1
+    );
+  });
 });
 
 async function assertRevert(promise) {

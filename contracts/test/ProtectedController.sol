@@ -54,4 +54,9 @@ contract ProtectedController is Protected {
     function uselessFunc() public only(unlock("uselessFunc")) {
         // I'm useless
     }
+
+    function giveRegisterSchemeKeyToAddress() public {
+        // solium-disable-next-line security/no-block-members
+        setKey("registerScheme", msg.sender, true, now + 2 days, 10);
+    }
 }
