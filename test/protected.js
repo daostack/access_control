@@ -1,6 +1,8 @@
 var ProtectedController = artifacts.require("./ProtectedController.sol");
 
 contract("Protected", function(accounts) {
+  var expirationForSameKey;
+
   it("should unlock registerScheme function for key", async function() {
     var protectedController = await ProtectedController.deployed();
 
@@ -58,12 +60,64 @@ contract("Protected", function(accounts) {
 
     var schemesRegistered = (await protectedController.schemesRegistered.call()).toNumber();
 
+    expirationForSameKey =
+      web3.eth.getBlock(web3.eth.blockNumber).timestamp + 60 * 60 * 24;
+
     await protectedController.transferKey(
       "registerScheme",
       accounts[1],
       false,
-      web3.eth.getBlock(web3.eth.blockNumber).timestamp + 60 * 60 * 24,
+      expirationForSameKey,
       2
+    );
+
+    await protectedController.registerScheme({ from: accounts[1] });
+
+    assert.isTrue(
+      (await protectedController.schemesRegistered.call()).toNumber() ==
+        schemesRegistered + 1
+    );
+  });
+
+  it("should revert transfering key if transferable is different", async function() {
+    var protectedController = await ProtectedController.deployed();
+
+    await assertRevert(
+      protectedController.transferKey(
+        "registerScheme",
+        accounts[1],
+        true,
+        expirationForSameKey,
+        1
+      )
+    );
+  });
+
+  it("should revert transfering key if expiration is different", async function() {
+    var protectedController = await ProtectedController.deployed();
+
+    await assertRevert(
+      protectedController.transferKey(
+        "registerScheme",
+        accounts[1],
+        false,
+        web3.eth.getBlock(web3.eth.blockNumber).timestamp + 60 * 60 * 24,
+        1
+      )
+    );
+  });
+
+  it("should transfer key if same as existing key", async function() {
+    var protectedController = await ProtectedController.deployed();
+
+    var schemesRegistered = (await protectedController.schemesRegistered.call()).toNumber();
+
+    await protectedController.transferKey(
+      "registerScheme",
+      accounts[1],
+      false,
+      expirationForSameKey,
+      1
     );
 
     await protectedController.registerScheme({ from: accounts[1] });
