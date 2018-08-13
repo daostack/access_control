@@ -63,7 +63,7 @@ contract("Protected", function(accounts) {
       accounts[1],
       false,
       web3.eth.getBlock(web3.eth.blockNumber).timestamp + 60 * 60 * 24,
-      1
+      2
     );
 
     await protectedController.registerScheme({ from: accounts[1] });
@@ -89,6 +89,20 @@ contract("Protected", function(accounts) {
     );
   });
 
+  it("should revert when transfering non existing key", async function() {
+    var protectedController = await ProtectedController.deployed();
+
+    await assertRevert(
+      protectedController.transferKey(
+        "reset",
+        accounts[1],
+        false,
+        web3.eth.getBlock(web3.eth.blockNumber).timestamp + 60 * 60 * 12,
+        1
+      )
+    );
+  });
+
   it("should revoke key", async function() {
     var protectedController = await ProtectedController.deployed();
 
@@ -107,6 +121,20 @@ contract("Protected", function(accounts) {
 
     await timeTravel(60 * 60 * 24 * 5);
     await assertRevert(protectedController.setParam(2, 300));
+  });
+
+  it("should revert transfering expired key", async function() {
+    var protectedController = await ProtectedController.deployed();
+
+    await assertRevert(
+      protectedController.transferKey(
+        "reset",
+        accounts[1],
+        false,
+        web3.eth.getBlock(web3.eth.blockNumber).timestamp + 60,
+        1
+      )
+    );
   });
 });
 
