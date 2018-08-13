@@ -22,6 +22,11 @@ contract ProtectedController is Protected {
             Only the sender can reset the schemes at any time, only once.
         */
         setKey("reset", msg.sender, false, 0, 1);
+
+        /*
+            Useless function lock to test revoke
+        */
+        setKey("uselessFunc", msg.sender, false, 0, 3);
     }
 
     function registerScheme() public only(unlock("registerScheme")) {
@@ -45,6 +50,8 @@ contract ProtectedController is Protected {
         }
         schemesRegistered = 0;
     }
-
     
+    function uselessFunc() public only(unlock("uselessFunc")) {
+        // I'm useless
+    }
 }
