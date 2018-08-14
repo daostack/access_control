@@ -1,6 +1,8 @@
 var ProtectedController = artifacts.require("./ProtectedController.sol");
 
 contract("Protected", function(accounts) {
+  var expirationForSameKey;
+
   it("should unlock registerScheme function for key", async function() {
     var protectedController = await ProtectedController.deployed();
 
@@ -27,6 +29,9 @@ contract("Protected", function(accounts) {
 
   it("should revert executing locked function when key already used", async function() {
     var protectedController = await ProtectedController.deployed();
+
+    await protectedController.reset();
+
     await assertRevert(protectedController.reset({ from: accounts[0] }));
   });
 
@@ -55,11 +60,63 @@ contract("Protected", function(accounts) {
 
     var schemesRegistered = (await protectedController.schemesRegistered.call()).toNumber();
 
+    expirationForSameKey =
+      web3.eth.getBlock(web3.eth.blockNumber).timestamp + 60 * 60 * 24;
+
     await protectedController.transferKey(
       "registerScheme",
       accounts[1],
       false,
-      web3.eth.getBlock(web3.eth.blockNumber).timestamp + 60 * 60 * 24,
+      expirationForSameKey,
+      2
+    );
+
+    await protectedController.registerScheme({ from: accounts[1] });
+
+    assert.isTrue(
+      (await protectedController.schemesRegistered.call()).toNumber() ==
+        schemesRegistered + 1
+    );
+  });
+
+  it("should revert transfering key if transferable is different", async function() {
+    var protectedController = await ProtectedController.deployed();
+
+    await assertRevert(
+      protectedController.transferKey(
+        "registerScheme",
+        accounts[1],
+        true,
+        expirationForSameKey,
+        1
+      )
+    );
+  });
+
+  it("should revert transfering key if expiration is different", async function() {
+    var protectedController = await ProtectedController.deployed();
+
+    await assertRevert(
+      protectedController.transferKey(
+        "registerScheme",
+        accounts[1],
+        false,
+        web3.eth.getBlock(web3.eth.blockNumber).timestamp + 60 * 60 * 24,
+        1
+      )
+    );
+  });
+
+  it("should transfer key if same as existing key", async function() {
+    var protectedController = await ProtectedController.deployed();
+
+    var schemesRegistered = (await protectedController.schemesRegistered.call()).toNumber();
+
+    await protectedController.transferKey(
+      "registerScheme",
+      accounts[1],
+      false,
+      expirationForSameKey,
       1
     );
 
@@ -86,6 +143,42 @@ contract("Protected", function(accounts) {
     );
   });
 
+  it("should revert when transfering non existing key", async function() {
+    var protectedController = await ProtectedController.deployed();
+
+    await assertRevert(
+      protectedController.transferKey(
+        "reset",
+        accounts[1],
+        false,
+        web3.eth.getBlock(web3.eth.blockNumber).timestamp + 60 * 60 * 12,
+        1
+      )
+    );
+  });
+
+  it("should transfer all keys for lock", async function() {
+    var protectedController = await ProtectedController.deployed();
+
+    await protectedController.uselessFunc();
+
+    await protectedController.transferAll("uselessFunc", accounts[1]);
+
+    await protectedController.uselessFunc({ from: accounts[1] });
+
+    await assertRevert(protectedController.uselessFunc());
+  });
+
+  it("should revoke key", async function() {
+    var protectedController = await ProtectedController.deployed();
+
+    await protectedController.uselessFunc({ from: accounts[1] });
+
+    await protectedController.revoke("uselessFunc", { from: accounts[1] });
+
+    await assertRevert(protectedController.uselessFunc({ from: accounts[1] }));
+  });
+
   // @notice This test should be last as it change time
   it("should revert executing locked function when date expired", async function() {
     var protectedController = await ProtectedController.deployed();
@@ -94,6 +187,46 @@ contract("Protected", function(accounts) {
 
     await timeTravel(60 * 60 * 24 * 5);
     await assertRevert(protectedController.setParam(2, 300));
+  });
+
+  it("should revert transfering expired key", async function() {
+    var protectedController = await ProtectedController.deployed();
+
+    await assertRevert(
+      protectedController.transferKey(
+        "reset",
+        accounts[1],
+        false,
+        web3.eth.getBlock(web3.eth.blockNumber).timestamp + 60,
+        1
+      )
+    );
+  });
+
+  it("should transfer key when previous key already expired", async function() {
+    var protectedController = await ProtectedController.deployed();
+
+    await protectedController.giveRegisterSchemeKeyToAddress({
+      from: accounts[3]
+    });
+
+    var schemesRegistered = (await protectedController.schemesRegistered.call()).toNumber();
+
+    await protectedController.transferKey(
+      "registerScheme",
+      accounts[0],
+      true,
+      web3.eth.getBlock(web3.eth.blockNumber).timestamp + 60 * 60 * 24,
+      1,
+      { from: accounts[3] }
+    );
+
+    await protectedController.registerScheme();
+
+    assert.isTrue(
+      (await protectedController.schemesRegistered.call()).toNumber() ==
+        schemesRegistered + 1
+    );
   });
 });
 

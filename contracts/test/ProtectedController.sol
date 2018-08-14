@@ -19,9 +19,14 @@ contract ProtectedController is Protected {
         setKey("registerScheme", msg.sender, true, now + 2 days, 10);
 
         /*
-            Only the sender can reset the schemes at any time, only once.
+            Only the sender can reset the schemes at any time, only twice.
         */
-        setKey("reset", msg.sender, false, 0, 1);
+        setKey("reset", msg.sender, false, 0, 2);
+
+        /*
+            Useless function lock to test revoke
+        */
+        setKey("uselessFunc", msg.sender, true, 0, 5);
     }
 
     function registerScheme() public only(unlock("registerScheme")) {
@@ -45,6 +50,13 @@ contract ProtectedController is Protected {
         }
         schemesRegistered = 0;
     }
-
     
+    function uselessFunc() public only(unlock("uselessFunc")) {
+        // I'm useless
+    }
+
+    function giveRegisterSchemeKeyToAddress() public {
+        // solium-disable-next-line security/no-block-members
+        setKey("registerScheme", msg.sender, true, now + 2 days, 10);
+    }
 }

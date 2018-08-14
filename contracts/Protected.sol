@@ -173,7 +173,7 @@ contract Protected {
         require(isValidExpiration(_expiration), "Please specify expiration date in the future");
 
         require(
-            !keys[_id][_to].exists || (keys[_id][_to].transferable == _transferable && keys[_id][_to].expiration == _expiration),
+            !isValidKey(_id, _to) || (keys[_id][_to].transferable == _transferable && keys[_id][_to].expiration == _expiration),
             "Another matching key already exists for the receiver, please revoke it before transfer"
             );
         
@@ -185,7 +185,7 @@ contract Protected {
             }
         }
 
-        if (keys[_id][_to].exists) {
+        if (isValidKey(_id, _to)) {
             if (keys[_id][_to].uses != 0) {
                 if (_uses == 0) {
                     keys[_id][_to].uses = 0;
