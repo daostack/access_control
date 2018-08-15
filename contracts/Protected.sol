@@ -1,41 +1,23 @@
 pragma solidity ^0.4.24;
+pragma experimental ABIEncoderV2;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "./EIPTBD.sol";
+import "./ERC165.sol";
 
 
 /**
- * @title Protected
+ * @title AccessControl
  * @dev base class that gives contracts a sophisticated access control mechanism
  */
-contract Protected {
+contract AccessControl is ERC165, EIPTBD {
     using SafeMath for uint;
-
-    // Random placeholder for irrelevent params in lock _id. e.g. `unlock(keccak256(abi.encodePacked("method", param1, ANYTHING, param2)))`
-    uint internal constant ANYTHING = uint(keccak256("ANYTHING"));
-
-    struct Key {
-        bool exists;
-        bool assignable;
-        uint expiration; // zero = no expiration
-        uint uses; // zero = infinite uses
+    
+    function supportsInterface(bytes4 interfaceID) external view returns (bool) {
+        return
+            interfaceID == this.supportsInterface.selector; //|| // ERC165
+          // Implement for the Access Control EIP, will be added when we decide on the specifics
     }
-
-    //      id                 owner      key
-    mapping(bytes32 => mapping(address => Key)) public keys;
-
-    event AssignKey(
-        bytes32 indexed _id,
-        address indexed _from, // zero = granted by contract
-        address indexed _to,
-        bool _assignable,
-        uint _expiration,
-        uint _uses
-    );
-    event RevokeKey(
-        bytes32 indexed _id,
-        address indexed _owner
-    );
-
 
     /**
      * @dev is the current block timestamp less than `_expiration`
@@ -197,15 +179,6 @@ contract Protected {
             0,
             0
         );
-    }
-
-    /**
-     * @dev A convenience modifier that guarantees a condition to be true. eg. `guarantee(unlock('Admin') || unlock('Worker'))`
-     * @param _condition the condition to be met
-     */
-    modifier guarantee(bool _condition) {
-        require(_condition, "Insufficiant permissions");
-        _;
     }
 
     /**

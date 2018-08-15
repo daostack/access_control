@@ -1,9 +1,13 @@
 pragma solidity ^0.4.24;
+pragma experimental ABIEncoderV2;
 
 import "../Protected.sol";
 
 
-contract ProtectedMock is Protected {
+contract ProtectedMock is AccessControl {
+
+    bytes32[][] noLocks;
+
     function revokeOwnerKey_(bytes32 _id, address _owner) public {
         return revokeOwnerKey(_id, _owner);
     }
@@ -31,5 +35,9 @@ contract ProtectedMock is Protected {
 
     function unlock_(bytes32 _id) public returns (bool) {
         return unlock(_id);
+    }
+
+    function getLocksForFunction(bytes4 _functionId) external view returns (bytes32[][] lockSets) {
+        lockSets = noLocks; // No locked methods, returns an empty data set
     }
 }
