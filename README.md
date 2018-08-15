@@ -9,9 +9,11 @@ Access control mechanism for DAOstack.
 
 ## Commands
 
-- `truffle test`
-- `truffle compile`
-- `truffle deploy`
+- `npm run ganache`
+- `npm run lint`
+- `npm run test`
+- `npm run build`
+- `npm run docs<update|build|deploy|preview>`
 
 # Concept
 The basic idea is that there are a set of "locks"/"topics" each with a set of "keys". A contract can protects one of it's methods with a lock (or more) such that anyone with the appropriate key can use it to access this method.

@@ -6,9 +6,14 @@
     "test": "test"
   },
   "scripts": {
+    "ganache": "ganache-cli",
     "test": "truffle test",
-    "solium": "solium --dir ./contracts/",
-    "lint": "eslint ."
+    "build": "truffle compile",
+    "lint": "solium -d contracts && eslint test",
+    "docs:update": "soldoc -q -o docs/generated_docs",
+    "docs:build": "soldoc -q -o docs/generated_docs && mkdocs build",
+    "docs:deploy": "soldoc -q -o docs/generated_docs && mkdocs gh-deploy --force",
+    "docs:preview": "soldoc -q -o docs/generated_docs && mkdocs serve"
   },
   "repository": {
     "type": "git",
@@ -30,11 +35,18 @@
   },
   "homepage": "https://github.com/daostack/access_control#readme",
   "dependencies": {
-    "openzeppelin-solidity": "1.11.0",
-    "solium": "^1.1.8"
+    "openzeppelin-solidity": "^1.11.0"
   },
   "devDependencies": {
+    "@soldoc/soldoc": "^0.4.3",
+    "chai": "^4.1.2",
+    "chai-almost": "^1.0.1",
+    "chai-as-promised": "^7.1.1",
+    "chai-bignumber": "^2.0.2",
     "eslint": "^5.3.0",
-    "eth-gas-reporter": "^0.1.10"
+    "eth-gas-reporter": "^0.1.10",
+    "ganache-cli": "^6.1.6",
+    "solium": "^1.1.8",
+    "truffle": "^4.1.13"
   }
 }
