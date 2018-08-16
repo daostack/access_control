@@ -101,11 +101,11 @@ contract("Protected", accounts => {
         k.uses.should.to.be.bignumber.equal(_uses - 1, "key should have 1 less _uses");
     });
 
-    it.skip("unlock deletes key if _uses equal _to 1 and returns true", async () => {
+    it("unlock deletes key if _uses equal _to 1 and returns true", async () => {
         const [_assignable, _expiration, _uses] = [false, 0, 1];
         await instance.grantKey_(_id, _owner, _assignable, _expiration, _uses);
-        await instance.unlock_(_id);
         const result = await instance.unlock_.call(_id);
+        await instance.unlock_(_id);
         expect(result).to.equal(true, "result should be true");
         const k = key(await instance.keys(_id, _owner));
 
