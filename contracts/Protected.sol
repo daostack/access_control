@@ -2,9 +2,8 @@ pragma solidity ^0.4.24;
 pragma experimental ABIEncoderV2;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "openzeppelin-solidity/contracts/introspection/ERC165.sol";
 import "./EIPTBD.sol";
-import "./ERC165.sol";
-
 
 /**
  * @title AccessControl
