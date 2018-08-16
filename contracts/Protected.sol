@@ -76,8 +76,8 @@ contract Protected {
         Key memory key = keys[_id][msg.sender];
         require(key.exists && isValidExpiration(key.expiration), "Invalid key");
         require(key.assignable, "Key is not assignable");
-        require(key.expiration == 0 || _expiration <= key.expiration, "Cannot extend key's expiration");
-        require(key.uses == 0 || _uses <= key.uses, "Not enough uses avaiable");
+        require(key.expiration == 0 || (_expiration <= key.expiration && _expiration > 0), "Cannot extend key's expiration");
+        require(key.uses == 0 || (_uses <= key.uses && _uses > 0), "Not enough uses avaiable");
         require(isValidExpiration(_expiration), "Expiration must be in the future");
 
         require(
