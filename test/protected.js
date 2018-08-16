@@ -475,7 +475,7 @@ contract("Protected", accounts => {
         await instance.assignKey(_id, accounts[1], false, time + (4 * hour), 6).should.be.rejectedWith("revert");
     });
 
-    it.skip("assignKey reverts for _uses increase _to infinity", async () => {
+    it("assignKey reverts for _uses increase _to infinity", async () => {
         const [_assignable, _expiration, _uses] = [true, time + (5 * hour), 5];
         await instance.grantKey_(_id, _owner, _assignable, _expiration, _uses);
         await instance.assignKey(_id, accounts[1], false, time + (4 * hour), 0).should.be.rejectedWith("revert");
