@@ -52,4 +52,6 @@ function now() {
 
 const hour = 60*60;
 
-module.exports = { key, empty, event, forward, now, hour };
+const TIME_TOLERANCE = 7;
+
+module.exports = { key, empty, event, forward, now, hour, TIME_TOLERANCE };

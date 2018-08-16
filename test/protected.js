@@ -1,11 +1,11 @@
-const { key, empty, event, forward, now, hour } = require("./utils");
+const { key, empty, event, forward, now, hour, TIME_TOLERANCE } = require("./utils");
 const ProtectedMock = artifacts.require("./test/ProtectedMock.sol");
 
 const BigNumber = web3.BigNumber;
 require("chai")
     .use(require("chai-bignumber")(BigNumber))
     .use(require("chai-as-promised"))
-    .use(require("chai-almost")(7)) // 7 seconds tolerance
+    .use(require("chai-almost")(TIME_TOLERANCE)) // 7 seconds tolerance
     .should();
 
 contract("Protected", accounts => {
@@ -136,20 +136,20 @@ contract("Protected", accounts => {
         expect(result).to.equal(true);
     });
 
-    it.skip("isValidExpiration should work for finite _expiration", async () => {
-        let result = await instance.isValidExpiration(time + (5 * hour));
+    it("isValidExpiration should work for finite _expiration", async () => {
+        let result = await instance.isValidExpiration(time + (5 * hour) + TIME_TOLERANCE);
         expect(result).to.equal(true, "should return true for current time");
         await forward(4 * hour);
         now().should.almost.equal(time + (4 * hour));
-        result = await instance.isValidExpiration(time + (5 * hour));
+        result = await instance.isValidExpiration(time + (5 * hour) + TIME_TOLERANCE);
         expect(result).to.equal(true, "should return true for 1 time before _expiration");
         await forward(1 * hour);
         now().should.almost.equal(time + (5 * hour));
-        result = await instance.isValidExpiration(time + (5 * hour));
+        result = await instance.isValidExpiration(time + (5 * hour) + TIME_TOLERANCE);
         expect(result).to.equal(true, "should return true for the _expiration time");
         await forward(1 * hour);
         now().should.almost.equal(time + (6 * hour));
-        result = await instance.isValidExpiration(time + (5 * hour));
+        result = await instance.isValidExpiration(time + (5 * hour) + TIME_TOLERANCE);
         expect(result).to.equal(false, "should return false for 1 time after _expiration");
     });
 
