@@ -210,7 +210,8 @@ contract Permissioned is ERC165, ERCTBDStorage {
         bool _assignable,
         uint _expiration,
         uint _uses
-    ) private {
+    ) private 
+    {
         Key memory key = keys[_id][_to];
 
         if (!key.exists) {
