@@ -1,5 +1,5 @@
 const { key, empty, event, forward, now, hour } = require("./utils");
-const ProtectedMock = artifacts.require("./test/PermissionedMock.sol");
+const PermissionedMock = artifacts.require("./test/PermissionedMock.sol");
 
 const BigNumber = web3.BigNumber;
 require("chai")
@@ -18,7 +18,7 @@ contract("Protected", accounts => {
   let time;
   beforeEach(async () => {
     time = now();
-    instance = await ProtectedMock.new();
+    instance = await PermissionedMock.new();
   });
 
   it("revokeOwnerKey deletes key and emits event", async () => {
