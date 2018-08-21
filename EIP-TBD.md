@@ -1,7 +1,7 @@
 ---
 eip: <to be assigned>
 title: Modular Access Control Mechanism
-author: Matan Tsuberi <something?@daostack.io>, Ben Kaufman <ben@daostack.io>, Adam Levi <adam@daostack.io>, Oren Sokolowsky <oren@daostack.io>
+author: Matan Tsuberi <mtsuberi@daostack.io>, Ben Kaufman <ben@daostack.io>, Adam Levi <adam@daostack.io>, Oren Sokolowsky <oren@daostack.io>
 discussions-to: <URL>
 status: Draft
 type: Standards Track
@@ -22,7 +22,7 @@ Standard access control mechanism for smart contracts.
 
 <!--A short (~200 word) description of the technical issue being addressed.-->
 
-This EIP prresents a generalized mechanism for access control on smart contracts, enabling the use of complex boolean expressions for limiting access to contract's functions. The mechanism utilizes the idea of "keys" for the access limitations. Keys could be transferable, expirable, limited to certain amount of uses or limited to certain fucntion parameters use.
+This EIP prresents a generalized mechanism for access control on smart contracts, enabling the use of complex boolean expressions for limiting access to contract's functions. The mechanism utilizes the idea of ["keys"](https://en.wikipedia.org/wiki/Capability-based_security) for the access limitations. Keys could be transferable, expirable, limited to certain amount of uses or limited to certain fucntion parameters use.
 
 ## Motivation
 
@@ -31,9 +31,9 @@ This EIP prresents a generalized mechanism for access control on smart contracts
 Access control is one of the basic components most smart contract applications and frameworks need to have. The ability to limit the access for calling a function to a specific EOA or smart contract account is vital for most systems. The core logic for the access control of a smart contract has a great importance as it is usually the main security risk a contract may have, and if compromised, it can cause fatal issue for the entire system.
 There is a vast number of use cases requiring access management for smart contracts. A few popular examples can be:
 
-- Ownable - This is probably the most popular access control mechanism used in the Ethereum space. OpenZeppelin's implementation can be found (here) [https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/ownership/Ownable.sol].
+- Ownable - This is probably the most popular access control mechanism used in the Ethereum space. OpenZeppelin's implementation can be found [here](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/ownership/Ownable.sol).
 
-- Membership Management - There are much efforts for managing membership on the Ethereum blockchain. A full detailed rationale for that can be found on (EIP-1261 - Membership Verification Token) [https://eips.ethereum.org/EIPS/eip-1261]. However, this creates a duplication of effort as membership management is just a single aspect of access controll mechanism. In addition, the current effort lacks some basic properties such as expiration and transferability of memberships.
+- Membership Management - There are much efforts for managing membership on the Ethereum blockchain. A full detailed rationale for that can be found on [EIP-1261 - Membership Verification Token](https://eips.ethereum.org/EIPS/eip-1261). However, this creates a duplication of effort as membership management is just a single aspect of access controll mechanism. In addition, the current effort lacks some basic properties such as expiration and transferability of memberships.
 
 - DAO operations - There are multiple teams working in the DAO space, all facing the problem of access control in a DAO. Thus, there is a lot of duplicated work on the subject with each having its own pros and cons. However, non of them has found a mechanism generalized enough to answer all possible future needs of DAOs.
 
@@ -164,7 +164,7 @@ DAOstack ERC-TBD implementation includes test cases written using Truffle.
 
 <!--The implementations must be completed before any EIP is given status "Final", but it need not be completed before the EIP is accepted. While there is merit to the approach of reaching consensus on the specification and rationale before writing code, the principle of "rough consensus and running code" is still useful when it comes to resolving many discussions of API details.-->
 
-DAOStack full implementation is available (here)[ADD LINK]
+DAOStack full implementation is available [here](ADD LINK)
 
 ## Copyright
 
