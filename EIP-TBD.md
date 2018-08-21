@@ -22,7 +22,7 @@ Standard access control mechanism for smart contracts.
 
 <!--A short (~200 word) description of the technical issue being addressed.-->
 
-This EIP prresents a generalized mechanism for access control on smart contracts, enabling the use of complex boolean expressions for limiting access to contract's functions. The mechanism utilizes the idea of ["keys"](https://en.wikipedia.org/wiki/Capability-based_security) for the access limitations. Keys could be transferable, expirable, limited to certain amount of uses or limited to certain fucntion parameters use.
+This EIP presents a generalized mechanism for access control on smart contracts, enabling the use of complex boolean expressions for limiting access to contract's functions. The mechanism utilizes the idea of ["keys"](https://en.wikipedia.org/wiki/Capability-based_security) for the access limitations. Keys could be transferable, expirable, limited to certain amount of uses or limited to certain fucntion parameters use.
 
 ## Motivation
 
