@@ -33,7 +33,7 @@ There is a vast number of use cases requiring access management for smart contra
 
 - Ownable - This is probably the most popular access control mechanism used in the Ethereum space. OpenZeppelin's implementation can be found [here](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/ownership/Ownable.sol).
 
-- Membership Management - There are much efforts for managing membership on the Ethereum blockchain. A full detailed rationale for that can be found on [EIP-1261 - Membership Verification Token](https://eips.ethereum.org/EIPS/eip-1261). However, this creates a duplication of effort as membership management is just a single aspect of access controll mechanism. In addition, the current effort lacks some basic properties such as expiration and transferability of memberships.
+- Membership Management - There are much efforts for managing membership on the Ethereum blockchain. A full detailed rationale for that can be found on [EIP-1261 - Membership Verification Token](https://eips.ethereum.org/EIPS/eip-1261). However, this creates a duplication of effort as membership management is just a single aspect of access control. In addition, the current effort lacks some basic properties such as expiration and transferability of memberships.
 
 - DAO operations - There are multiple teams working in the DAO space, all facing the problem of access control in a DAO. Thus, there is a lot of duplicated work on the subject with each having its own pros and cons. However, non of them has found a mechanism generalized enough to answer all possible future needs of DAOs.
 
