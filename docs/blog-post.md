@@ -1,16 +1,30 @@
-# Announcing DAOstack Access Control
+# Announcing EIP-TBD
 
-DAOstack Access Control is a capability-based security mechanism for Ethereum smart contracts that allows the developer to simply define complex role based/ordering/timing constraints for accessing the functionality of the contract in a secured way without comprimising gas costs.
+EIP-TBD is a capability-based security mechanism for Ethereum smart contracts, created by the [DAOstack](http://daostack.io/) team, that allows the developer to simply define complex role-based, ordering (i.e requiring `f(..)` to be called before `g(..)`), timing and use-count constraints for accessing the functionality of the contract in a secured way without comprimising gas costs.
 
 ## What is capability-based security?
 
-Capability-based security makes an explicit analogy between how physical items are secured and how computer security should be done. In the physical world, restricting access to a resource means putting some kind of lock on it and distributing keys to authorized agents. Having the capability to access some resource means possessing a key that opens the resource's lock. A key (heh…) property of this approach is that keys can't be forged by an unauthorized agent.
+Capability-based security makes an explicit analogy between how physical items are secured in the real world and how computer security should be done. In the physical world, restricting access to a resource means putting some kind of lock on it and distributing keys to authorized agents. Having the capability to access some resource means possessing a key that opens the resource's lock. A key (heh…) property of this approach is that keys can't be forged by an unauthorized agent.
 
-In the context of the blockchain, we treat contract's methods as the resources under protection and we can code up the rules that ensure the above property. Locks are implemented as simple `byte32` ids and keys are simply stored in a mapping tracking which address has a key for which id.
+In the context of the blockchain, we treat contract's methods as the resources under protection and we can code up the rules that ensure the above property. Locks are implemented as simple `bytes32` ids and keys are simply stored in a mapping tracking which address has a key for which id.
+
+## How it works?
+
+We created a contract that tracks which accounts are in possesion of which keys.
+
+Keys can have the following features:
+
+1. Is the key assignable to other accounts?
+2. From what time it can be used? (can be immediately)
+3. At what time its expired? (optional)
+4. How many times it can be used? (can be infinite)
+
+All capabilities are ulltimatly granted from the contract, by using the `grantKey` method.
+Accounts can then `assignKey` partial capabilities given to them to other accounts (if allowed).
 
 ## Quick example
 
-Our simple example is of a company who wants to recruit employees via an external HR company and pay them our regularly each month
+Our simple example is of a company who wants to recruit employees via an external HR company and those employees a fixed salary regularly each month
 Let's see how we can use the `Protected` base contract and take advantage of access control to make this problem a breeze.
 
 Start by inheriting from `Protected`:
@@ -99,18 +113,18 @@ function payout(address _employee)
 
 Take a look at the full example [here](https://github.com/daostack/access_control/tree/master/contracts/examples/Company.sol).
 
-## Its ERC165 compatible
+## Its ERC165 compatible (interface id: 0x0b74c80f)
 Making `Protected` ERC165 compatible means that clients (both contracts and DApps) can programmatically check if a contract is `Protected`.
 
 ## We made an EIP
-Looking at the Ethereum ecosystem we see a lot of standards that emerge and makes developing DApps efficient and easy. When talking about access control, we have some attempts to standardize various small aspects of like [`Ownable`](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/ownership/Ownable.sol), [`ERC1261`](https://github.com/ethereum/EIPs/issues/1261) etc. We believe we can do much better and standardize up to 95% of the use cases under a single interface specification. This will allow much greater flexibility, interoperability and standard tooling support.
+Looking at the Ethereum ecosystem we see a lot of standards that emerge and makes developing DApps efficient and easy. When talking about access control, we have some attempts to standardize various small aspects of like [`Ownable`](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/ownership/Ownable.sol) for having an account with privelaged capabilities and [`ERC1261`](https://github.com/ethereum/EIPs/issues/1261) for managing membership in an organization. We believe we can do much better and standardize most of the use cases under a single interface specification. This will allow much greater flexibility, interoperability and standard tooling support.
 
-Take a look at the specification [here](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-TBD.md).
+Take a look at the specification & discussion [here](https://github.com/ethereum/EIPs/issues/TBD).
 
 ## Future directions
 
 There are many things we can improve in the future:
 
-1. User Groups — The ability to grant/assign/revoke keys to collections of accounts with a
+1. User Groups — The ability to grant/assign/revoke keys to collections of accounts with a single method call.
 2. Contract as a service — Implementing a singleton contract that globally manages locks & keys for all contracts will allow contracts to share locks for a method and interact in more sophisticated ways.
 3. The ability to programatically know what are the lock conditions for a method and check if an account is able to access it.

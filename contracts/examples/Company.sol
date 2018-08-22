@@ -35,7 +35,7 @@ contract Company is Protected {
 
     function fireHRCompany(address _HRCompany)
         public
-        guarantee(unlock("manageHRCompany")) // the sender can mange HR comapines
+        guarantee(unlock("manageHRCompany")) // the sender can manage HR comapines
     {
         // Revoke access to `registerEmployee`
         revokeOwnerKey("registerEmployee", _HRCompany);
