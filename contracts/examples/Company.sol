@@ -20,7 +20,7 @@ contract Company is Protected {
 
     function hireHRCompany(address _HRCompany, uint80 n_employees)
         public
-        guarentee(unlock("manageHRCompany")) // the sender can mange HR comapines
+        guarantee(unlock("manageHRCompany")) // the sender can mange HR comapines
     {
         // Allow the HRCompany to register up to `n_employees`
         grantKey(
@@ -35,7 +35,7 @@ contract Company is Protected {
 
     function fireHRCompany(address _HRCompany)
         public
-        guarentee(unlock("manageHRCompany")) // the sender can mange HR comapines
+        guarantee(unlock("manageHRCompany")) // the sender can mange HR comapines
     {
         // Revoke access to `registerEmployee`
         revokeOwnerKey("registerEmployee", _HRCompany);
@@ -43,12 +43,12 @@ contract Company is Protected {
 
     function registerEmployee(address _employee, uint _salary)
         public
-        guarentee(unlock("registerEmployee"))
+        guarantee(unlock("registerEmployee"))
     {
-        require(salaries[_employee].salary == 0, "Employee already registered");
+        require(employees[_employee].salary == 0, "Employee already registered");
         require(_salary > 0, "Salary must be greater than zero");
-        salaries[_employee].salary = salary;
-        salaries[_employee].lastPayDate = now;
+        employees[_employee].salary = _salary;
+        employees[_employee].lastPayDate = now;
 
         // Next payday for this employee is at least a month from now
         grantKey(
@@ -64,12 +64,12 @@ contract Company is Protected {
     function payout(address _employee)
         public
         // The sender can payout to this employee
-        gurentee(unlock(lockId("payout", _employee)))
+        guarantee(unlock(lockId("payout", _employee)))
     {
-        uint salary = salaries[employee].salary;
+        uint salary = employees[_employee].salary;
         require(salary > 0, "Employee is not registered");
-        _employee.transfer(salary * (now - salaries[employee].lastPayDate) / 30 days);
-        salaries[employee].lastPayDate = now;
+        _employee.transfer(salary * (now - employees[_employee].lastPayDate) / 30 days);
+        employees[_employee].lastPayDate = now;
 
         // Next payday is at least a month from now
         grantKey(
