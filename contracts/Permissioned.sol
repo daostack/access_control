@@ -34,7 +34,7 @@ contract Permissioned is ERC165, ERCTBDStorage {
             this.assignKey.selector ^ 
             this.assignFullKey.selector ^ 
             this.revokeKey.selector ^ 
-            this.unlockable.selector; // ERCTBD 0xef07a1f8
+            this.unlockable.selector; // ERCTBD 0x0b74c80f
     }
 
     /// @dev is the current block timestamp less than `_expiration`
@@ -52,6 +52,20 @@ contract Permissioned is ERC165, ERCTBDStorage {
         Key memory key = keys[_id][_owner];
         // solium-disable-next-line security/no-block-members
         return key.exists && isValidExpiration(key.expiration) && key.startTime <= now;
+    }
+
+    /// @dev does the owner have a valid key for the lock id
+    /// @param _id lock id
+    /// @param _owner owner address
+    /// @return the properties of the requested key as a tuple
+    function getKey(bytes32 _id, address _owner) external view returns (bool, bool, uint80, uint80, uint80) {
+        return (
+            keys[_id][_owner].exists, 
+            keys[_id][_owner].assignable, 
+            keys[_id][_owner].startTime, 
+            keys[_id][_owner].expiration, 
+            keys[_id][_owner].uses
+        );
     }
 
     /// @dev transfer partial or all capabilities from the sender to an account

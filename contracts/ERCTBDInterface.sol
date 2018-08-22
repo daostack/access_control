@@ -3,7 +3,7 @@ pragma solidity ^0.4.24;
 
 /// @title ERCTBDInterface - Access Control Interface
 /// @dev basic inteface for access control mechanism
-/// Note: the ERC-165 identifier for this interface is 0xef07a1f8.
+/// Note: the ERC-165 identifier for this interface is 0x0b74c80f.
 interface ERCTBDInterface {
 
     event AssignKey(
@@ -40,4 +40,10 @@ interface ERCTBDInterface {
     /// @param _id lock id
     /// @param _owner owner address
     function unlockable(bytes32 _id, address _owner) external view returns (bool);
+
+    /// @dev does the owner have a valid key for the lock id
+    /// @param _id lock id
+    /// @param _owner owner address
+    /// @return the properties of the requested key as a tuple
+    function getKey(bytes32 _id, address _owner) external view returns (bool, bool, uint80, uint80, uint80);
 }
