@@ -1,17 +1,17 @@
 pragma solidity ^0.4.24;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/introspection/ERC165.sol";
+import "./SafeMath80.sol";
 import "./ERCTBDStorage.sol";
 
 
 /// @title Permissioned
 /// @dev base class that gives contracts a sophisticated access control mechanism
 contract Permissioned is ERC165, ERCTBDStorage {
-    using SafeMath for uint;
+    using SafeMath80 for uint80;
     
     // Random placeholder for irrelevent params in lock id. e.g. `unlock(keccak256(abi.encodePacked("method", param1, ANYTHING, param2)))`
-    uint internal constant ANYTHING = uint(keccak256("ANYTHING"));
+    uint256 internal constant ANYTHING = uint256(keccak256("ANYTHING"));
 
     /// @dev A convenience modifier that guarentees a condition to be true. eg. `guarentee(unlock('Admin') || unlock('Worker'))`
     /// @param _condition the condition to be met
@@ -40,7 +40,7 @@ contract Permissioned is ERC165, ERCTBDStorage {
     /// @dev is the current block timestamp less than `_expiration`
     /// @param _expiration expiration block timestamp
     /// @return is the expiration valid
-    function isValidExpiration(uint _expiration) public view returns (bool valid) {
+    function isValidExpiration(uint80 _expiration) public view returns (bool valid) {
         // solium-disable-next-line security/no-block-members
         return _expiration == 0 || _expiration >= now;
     }
@@ -50,21 +50,24 @@ contract Permissioned is ERC165, ERCTBDStorage {
     /// @param _owner owner address
     function unlockable(bytes32 _id, address _owner) public view returns (bool) {
         Key memory key = keys[_id][_owner];
-        return key.exists && isValidExpiration(key.expiration);
+        // solium-disable-next-line security/no-block-members
+        return key.exists && isValidExpiration(key.expiration) && key.startTime <= now;
     }
 
     /// @dev transfer partial or all capabilities from the sender to an account
     /// @param _id lock id
     /// @param _to recipient
     /// @param _assignable can the recipient further assignKey capabilities to other accounts?
+    /// @param _startTime the key's start time (block timestamp)
     /// @param _expiration the key's expiration time (block timestamp)
     /// @param _uses number of times this key can be used (in `unlock(..)`)
     function assignKey(
         bytes32 _id,
         address _to,
         bool _assignable,
-        uint _expiration,
-        uint _uses
+        uint80 _startTime,
+        uint80 _expiration,
+        uint80 _uses
     ) public
     {
         Key memory key = keys[_id][msg.sender];
@@ -90,7 +93,7 @@ contract Permissioned is ERC165, ERCTBDStorage {
                 }
             }
         } else {
-            setKey(_id, _to, _assignable, _expiration, _uses);
+            setKey(_id, _to, _assignable, _startTime, _expiration, _uses);
         }
 
         emit AssignKey(
@@ -98,6 +101,7 @@ contract Permissioned is ERC165, ERCTBDStorage {
             msg.sender,
             _to,
             _assignable,
+            _startTime,
             _expiration,
             _uses
         );
@@ -116,6 +120,7 @@ contract Permissioned is ERC165, ERCTBDStorage {
             _id,
             _to,
             key.assignable,
+            key.startTime,
             key.expiration,
             key.uses
         );
@@ -139,31 +144,34 @@ contract Permissioned is ERC165, ERCTBDStorage {
     /// @param _id lock id
     /// @param _to recipient
     /// @param _assignable can the recipient further assignKey his capabilities to other accounts?
+    /// @param _startTime the key's start time (block timestamp)
     /// @param _expiration the key's expiration time (block timestamp)
     /// @param _uses number of times this key can be used (in `unlock(..)`)
     function grantKey(
         bytes32 _id,
         address _to,
         bool _assignable,
-        uint _expiration,
-        uint _uses
+        uint80 _startTime,
+        uint80 _expiration,
+        uint80 _uses
     ) internal
     {
         require(isValidExpiration(_expiration), "Expiration must be in the future");
 
-        setKey(_id, _to, _assignable, _expiration, _uses);
+        setKey(_id, _to, _assignable, _startTime, _expiration, _uses);
 
         emit AssignKey(
             _id,
             0,
             _to,
             _assignable,
+            _startTime,
             _expiration,
             _uses
         );
     }
 
-    /// @dev Grant full capabilities to account (assignable, no expiration, infinite uses)
+    /// @dev Grant full capabilities to account (assignable, no start time, no expiration, infinite uses)
     /// @param _id lock id
     /// @param _to recipient
     function grantFullKey(
@@ -175,6 +183,7 @@ contract Permissioned is ERC165, ERCTBDStorage {
             _id,
             _to,
             true,
+            0,
             0,
             0
         );
@@ -193,7 +202,7 @@ contract Permissioned is ERC165, ERCTBDStorage {
     /// @dev subtract uses from a key, delete the key if it has no uses left.
     /// @param _id lock id
     /// @param _uses uses count to subtract from the key
-    function subtractUses(bytes32 _id, uint _uses) private {
+    function subtractUses(bytes32 _id, uint80 _uses) private {
         Key memory key = keys[_id][msg.sender];
         if (key.uses > 0) {
             if (key.uses == _uses) {
@@ -208,8 +217,9 @@ contract Permissioned is ERC165, ERCTBDStorage {
         bytes32 _id,
         address _to,
         bool _assignable,
-        uint _expiration,
-        uint _uses
+        uint80 _startTime,
+        uint80 _expiration,
+        uint80 _uses
     ) private 
     {
         Key memory key = keys[_id][_to];
@@ -222,6 +232,10 @@ contract Permissioned is ERC165, ERCTBDStorage {
             keys[_id][_to].assignable = _assignable;
         }
 
+        if (_startTime != key.startTime) {
+            keys[_id][_to].startTime = _startTime;
+        }
+        
         if (_expiration != key.expiration) {
             keys[_id][_to].expiration = _expiration;
         }
@@ -240,6 +254,10 @@ contract Permissioned is ERC165, ERCTBDStorage {
             keys[_id][_to].assignable = false;
         }
 
+        if (key.startTime != 0) {
+            keys[_id][_to].startTime = 0;
+        }
+        
         if (key.expiration != 0) {
             keys[_id][_to].expiration = 0;
         }

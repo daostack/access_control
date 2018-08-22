@@ -55,7 +55,7 @@ pragma solidity ^0.4.24;
 /// Note: the ERC-165 identifier for this interface is 0xef07a1f8.
 interface ERCTBDInterface {
 
-    event AssignKey(bytes32 indexed _id, address indexed _from, address indexed _to, bool _assignable, uint _expiration, uint _uses);
+    event AssignKey(bytes32 indexed _id, address indexed _from, address indexed _to, bool _assignable, uint80 _expiration, uint80 _uses);
     event RevokeKey(bytes32 indexed _id, address indexed _owner);
 
     /// @dev transfer partial or all capabilities from the sender to an account
@@ -64,7 +64,7 @@ interface ERCTBDInterface {
     /// @param _assignable can the recipient further assign capabilities to other accounts?
     /// @param _expiration the key's expiration time (block number)
     /// @param _uses number of times this key can be used (in `unlock(..)`)
-    function assignKey(bytes32 _id, address _to, bool _assignable, uint _expiration, uint _uses) external;
+    function assignKey(bytes32 _id, address _to, bool _assignable, uint80 _expiration, uint80 _uses) external;
 
     /// @dev transfer all capabilities from the sender to an account
     /// @param _id lock id
@@ -87,8 +87,8 @@ contract ERCTBD is ERC165, ERCTBDInterface {
     struct Key {
         bool exists;
         bool assignable;
-        uint expiration;
-        uint uses;
+        uint80 expiration;
+        uint80 uses;
     }
 
     /// @dev Grant capabilities to account (overwrites existing key)
@@ -97,7 +97,7 @@ contract ERCTBD is ERC165, ERCTBDInterface {
     /// @param _assignable can the recipient further assignKey his capabilities to other accounts?
     /// @param _expiration the key's expiration time (block timestamp)
     /// @param _uses number of times this key can be used (in `unlock(..)`)
-    function grantKey(bytes32 _id, address _to, bool _assignable, uint _expiration, uint _uses) internal;
+    function grantKey(bytes32 _id, address _to, bool _assignable, uint80 _expiration, uint80 _uses) internal;
 
     /// @dev Grant full capabilities to account (assignable, no expiration, infinite uses)
     /// @param _id lock id
