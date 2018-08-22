@@ -8,7 +8,7 @@ In the context of the blockchain, we treat contract's methods as the resources u
 
 ## Quick example
 
-Our simple example is of a company who wants to recruite employees via an external HR company and pay them our regularly each month
+Our simple example is of a company who wants to recruit employees via an external HR company and pay them our regularly each month
 Let's see how we can use the `Protected` base contract and take advantage of access control to make this problem a breeze.
 
 Start by inheriting from `Protected`:
