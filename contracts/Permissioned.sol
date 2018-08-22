@@ -34,7 +34,8 @@ contract Permissioned is ERC165, ERCTBDStorage {
             this.assignKey.selector ^ 
             this.assignFullKey.selector ^ 
             this.revokeKey.selector ^ 
-            this.unlockable.selector; // ERCTBD 0x0b74c80f
+            this.unlockable.selector ^
+            this.getKey.selector; // ERCTBD 0x0b74c80f
     }
 
     /// @dev is the current block timestamp less than `_expiration`
