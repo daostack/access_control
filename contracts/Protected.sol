@@ -44,7 +44,6 @@ contract Protected {
      * @param _expiration block timestamp
      */
     function isValidExpiration(uint80 _expiration) public view returns (bool valid) {
-        // solium-disable-next-line security/no-block-members
         return _expiration == 0 || _expiration >= now;
     }
 
