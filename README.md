@@ -7,6 +7,8 @@ Access control mechanism for DAOstack.
 1. `git clone git@github.com:daostack/access_control.git && cd access_control`
 2. `npm i`
 
+Check out the [documentation](https://daostack.github.io/access_control/) for more!
+
 ## Commands
 
 - `npm run ganache`
