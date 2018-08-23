@@ -44,18 +44,19 @@ contract("Protected", accounts => {
   });
 
   it("grantKey reverts when _expiration is in the past", async () => {
-    const [_assignable, _expiration, _uses] = [true, time - 1 * hour, 6];
+    const [_assignable, _startTime, _expiration, _uses] = [true,0,  time - 1 * hour,  6];
     instance
-      .grantKey_(_id, _owner, _assignable, _expiration, _uses)
+      .grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses)
       .should.be.rejectedWith("revert");
   });
 
   it("grantKey updates keys and emits an event", async () => {
-    const [_assignable, _expiration, _uses] = [true, time + 1 * hour, 6];
+    const [_assignable, _startTime, _expiration, _uses] = [true,0,  time + 1 * hour,  6];
     const tx = await instance.grantKey_(
       _id,
       _owner,
       _assignable,
+      _startTime,
       _expiration,
       _uses
     );
@@ -78,14 +79,14 @@ contract("Protected", accounts => {
   });
 
   it("grantFullKey reverts when _expiration is in the past", async () => {
-    const [_assignable, _expiration, _uses] = [true, time - 1 * hour, 6];
+    const [_assignable, _startTime, _expiration, _uses] = [true,0,  time - 1 * hour,  6];
     instance
-      .grantKey_(_id, _owner, _assignable, _expiration, _uses)
+      .grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses)
       .should.be.rejectedWith("revert");
   });
 
   it("grantFullKey updates keys and emits an event", async () => {
-    const [_assignable, _expiration, _uses] = [true, 0, 0];
+    const [_assignable, _startTime, _expiration, _uses] = [true,0,  0,  0];
     const tx = await instance.grantFullKey_(_id, _owner);
     const k = key(await instance.keys(_id, _owner));
 
@@ -106,8 +107,8 @@ contract("Protected", accounts => {
   });
 
   it("unlock decrements _uses if greater than 1 and returns true", async () => {
-    const [_assignable, _expiration, _uses] = [false, 0, 5];
-    await instance.grantKey_(_id, _owner, _assignable, _expiration, _uses);
+    const [_assignable, _startTime, _expiration, _uses] = [false,0,  0,  5];
+    await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
     await instance.unlock_(_id);
     const result = await instance.unlock_.call(_id);
     expect(result).to.equal(true);
@@ -130,8 +131,8 @@ contract("Protected", accounts => {
   });
 
   it("unlock deletes key if _uses equal _to 1 and returns true", async () => {
-    const [_assignable, _expiration, _uses] = [false, 0, 1];
-    await instance.grantKey_(_id, _owner, _assignable, _expiration, _uses);
+    const [_assignable, _startTime, _expiration, _uses] = [false,0,  0,  1];
+    await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
     const result = await instance.unlock_.call(_id);
     await instance.unlock_(_id);
     expect(result).to.equal(true, "result should be true");
@@ -147,8 +148,8 @@ contract("Protected", accounts => {
   });
 
   it("unlock returns false for expired key", async () => {
-    const [_assignable, _expiration, _uses] = [false, time + 5 * hour, 5];
-    await instance.grantKey_(_id, _owner, _assignable, _expiration, _uses);
+    const [_assignable, _startTime, _expiration, _uses] = [false,0,  time + 5 * hour,  5];
+    await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
     await forward(5 * hour);
     now().should.almost.equal(time + 5 * hour);
     const result = await instance.unlock_.call(_id);
@@ -198,8 +199,8 @@ contract("Protected", accounts => {
   });
 
   it("unlockable returns false for expired key", async () => {
-    const [_assignable, _expiration, _uses] = [false, time + 5 * hour, 5];
-    await instance.grantKey_(_id, _owner, _assignable, _expiration, _uses);
+    const [_assignable, _startTime, _expiration, _uses] = [false,0,  time + 5 * hour,  5];
+    await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
     let result = await instance.unlockable(_id, _owner);
     expect(result).to.equal(true);
     await forward(5 * hour);
@@ -209,8 +210,8 @@ contract("Protected", accounts => {
   });
 
   it("unlockable returns true for key with no _expiration", async () => {
-    const [_assignable, _expiration, _uses] = [false, 0, 5];
-    await instance.grantKey_(_id, _owner, _assignable, _expiration, _uses);
+    const [_assignable, _startTime, _expiration, _uses] = [false,0,  0,  5];
+    await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
     let result = await instance.unlockable(_id, _owner);
     expect(result).to.equal(true);
     await forward(5 * hour);
@@ -220,8 +221,8 @@ contract("Protected", accounts => {
   });
 
   it("assignKey updates both keys for correct params (no merge) and emits event", async () => {
-    const [_assignable, _expiration, _uses] = [true, time + 5 * hour, 5];
-    await instance.grantKey_(_id, _owner, _assignable, _expiration, _uses);
+    const [_assignable, _startTime, _expiration, _uses] = [true,0,  time + 5 * hour,  5];
+    await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
 
     // recipient key
     let recipientKey = key(await instance.keys(_id, accounts[1]));
@@ -234,6 +235,7 @@ contract("Protected", accounts => {
       _id,
       accounts[1],
       false,
+      0,
       time + 4 * hour,
       3
     );
@@ -284,9 +286,9 @@ contract("Protected", accounts => {
   });
 
   it("assignKey updates both keys for correct params (no merge, recipeint key is expired) and emits event", async () => {
-    const [_assignable, _expiration, _uses] = [true, time + 10 * hour, 5];
-    await instance.grantKey_(_id, _owner, _assignable, _expiration, _uses);
-    await instance.grantKey_(_id, accounts[1], false, time + 5 * hour, 7);
+    const [_assignable, _startTime, _expiration, _uses] = [true,0,  time + 10 * hour,  5];
+    await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
+    await instance.grantKey_(_id, accounts[1], false, 0, time + 5 * hour, 7);
     await forward(5 * hour);
     now().should.almost.equal(time + 5 * hour);
 
@@ -313,6 +315,7 @@ contract("Protected", accounts => {
       _id,
       accounts[1],
       false,
+      0,
       time + 10 * hour,
       3
     );
@@ -363,9 +366,9 @@ contract("Protected", accounts => {
   });
 
   it("assignKey updates both keys for correct params (merge) and emits event", async () => {
-    const [_assignable, _expiration, _uses] = [true, time + 5 * hour, 5];
-    await instance.grantKey_(_id, _owner, _assignable, _expiration, _uses);
-    await instance.grantKey_(_id, accounts[1], false, time + 4 * hour, 7);
+    const [_assignable, _startTime, _expiration, _uses] = [true,0,  time + 5 * hour,  5];
+    await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
+    await instance.grantKey_(_id, accounts[1], false, 0, time + 4 * hour, 7);
 
     // recipient key
     let recipientKey = key(await instance.keys(_id, accounts[1]));
@@ -390,6 +393,7 @@ contract("Protected", accounts => {
       _id,
       accounts[1],
       false,
+      0,
       time + 4 * hour,
       3
     );
@@ -440,9 +444,9 @@ contract("Protected", accounts => {
   });
 
   it("assignKey updates both keys for correct params (merge, infinite _owner _uses, passing infnite _uses) and emits event", async () => {
-    const [_assignable, _expiration, _uses] = [true, time + 5 * hour, 0];
-    await instance.grantKey_(_id, _owner, _assignable, _expiration, _uses);
-    await instance.grantKey_(_id, accounts[1], false, time + 4 * hour, 7);
+    const [_assignable, _startTime, _expiration, _uses] = [true,0,  time + 5 * hour,  0];
+    await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
+    await instance.grantKey_(_id, accounts[1], false, 0, time + 4 * hour, 7);
 
     // recipient key
     let recipientKey = key(await instance.keys(_id, accounts[1]));
@@ -467,6 +471,7 @@ contract("Protected", accounts => {
       _id,
       accounts[1],
       false,
+      0,
       time + 4 * hour,
       0
     );
@@ -517,9 +522,9 @@ contract("Protected", accounts => {
   });
 
   it("assignKey updates both keys for correct params (merge, infinite _owner _uses, passing finite _uses) and emits event", async () => {
-    const [_assignable, _expiration, _uses] = [true, time + 5 * hour, 0];
-    await instance.grantKey_(_id, _owner, _assignable, _expiration, _uses);
-    await instance.grantKey_(_id, accounts[1], false, time + 4 * hour, 7);
+    const [_assignable, _startTime, _expiration, _uses] = [true,0,  time + 5 * hour,  0];
+    await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
+    await instance.grantKey_(_id, accounts[1], false, 0, time + 4 * hour, 7);
 
     // recipient key
     let recipientKey = key(await instance.keys(_id, accounts[1]));
@@ -544,6 +549,7 @@ contract("Protected", accounts => {
       _id,
       accounts[1],
       false,
+      0,
       time + 4 * hour,
       3
     );
@@ -594,9 +600,9 @@ contract("Protected", accounts => {
   });
 
   it("assignKey updates both keys for correct params (merge, infinite recipient _uses) and emits event", async () => {
-    const [_assignable, _expiration, _uses] = [true, time + 5 * hour, 5];
-    await instance.grantKey_(_id, _owner, _assignable, _expiration, _uses);
-    await instance.grantKey_(_id, accounts[1], false, time + 4 * hour, 0);
+    const [_assignable, _startTime, _expiration, _uses] = [true,0,  time + 5 * hour,  5];
+    await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
+    await instance.grantKey_(_id, accounts[1], false, 0, time + 4 * hour, 0);
 
     // recipient key
     let recipientKey = key(await instance.keys(_id, accounts[1]));
@@ -621,6 +627,7 @@ contract("Protected", accounts => {
       _id,
       accounts[1],
       false,
+      0,
       time + 4 * hour,
       3
     );
@@ -671,9 +678,9 @@ contract("Protected", accounts => {
   });
 
   it("assignKey updates both keys for correct params (merge, infinite recipient and _owner _uses) and emits event", async () => {
-    const [_assignable, _expiration, _uses] = [true, time + 5 * hour, 0];
-    await instance.grantKey_(_id, _owner, _assignable, _expiration, _uses);
-    await instance.grantKey_(_id, accounts[1], false, time + 4 * hour, 0);
+    const [_assignable, _startTime, _expiration, _uses] = [true,0,  time + 5 * hour,  0];
+    await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
+    await instance.grantKey_(_id, accounts[1], false, 0, time + 4 * hour, 0);
 
     // recipient key
     let recipientKey = key(await instance.keys(_id, accounts[1]));
@@ -698,6 +705,7 @@ contract("Protected", accounts => {
       _id,
       accounts[1],
       false,
+      0,
       time + 4 * hour,
       0
     );
@@ -749,83 +757,83 @@ contract("Protected", accounts => {
 
   it("assignKey reverts for non-existent key", async () => {
     await instance
-      .assignKey(_id, accounts[1], false, 0, 0)
+      .assignKey(_id, accounts[1], false, 0, 0, 0)
       .should.be.rejectedWith("revert");
   });
 
   it("assignKey reverts for expired _owner key", async () => {
-    const [_assignable, _expiration, _uses] = [true, time + 5 * hour, 5];
-    await instance.grantKey_(_id, _owner, _assignable, _expiration, _uses);
-    await instance.assignKey.call(_id, accounts[1], false, time + 4 * hour, 3)
+    const [_assignable, _startTime, _expiration, _uses] = [true,0,  time + 5 * hour,  5];
+    await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
+    await instance.assignKey.call(_id, accounts[1], false, 0, time + 4 * hour, 3)
       .should.be.fulfilled;
     await forward(5 * hour);
     now().should.almost.equal(time + 5 * hour);
     await instance
-      .assignKey(_id, accounts[1], false, time + 4 * hour, 3)
+      .assignKey(_id, accounts[1], false, 0, time + 4 * hour, 3)
       .should.be.rejectedWith("revert");
   });
 
   it("assignKey reverts for _expiration extension", async () => {
-    const [_assignable, _expiration, _uses] = [true, time + 5 * hour, 5];
-    await instance.grantKey_(_id, _owner, _assignable, _expiration, _uses);
+    const [_assignable, _startTime, _expiration, _uses] = [true,0,  time + 5 * hour,  5];
+    await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
     await instance
-      .assignKey(_id, accounts[1], false, time + 6 * hour, 3)
+      .assignKey(_id, accounts[1], false, 0, time + 6 * hour, 3)
       .should.be.rejectedWith("revert");
   });
 
   it("assignKey reverts for _expiration extension _to infinity", async () => {
-    const [_assignable, _expiration, _uses] = [true, time + 5 * hour, 5];
-    await instance.grantKey_(_id, _owner, _assignable, _expiration, _uses);
+    const [_assignable, _startTime, _expiration, _uses] = [true,0,  time + 5 * hour,  5];
+    await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
     await instance
-      .assignKey(_id, accounts[1], false, 0, 3)
+      .assignKey(_id, accounts[1], false, 0, 0, 3)
       .should.be.rejectedWith("revert");
   });
 
   it("assignKey reverts for _uses increase", async () => {
-    const [_assignable, _expiration, _uses] = [true, time + 5 * hour, 5];
-    await instance.grantKey_(_id, _owner, _assignable, _expiration, _uses);
+    const [_assignable, _startTime, _expiration, _uses] = [true,0,  time + 5 * hour,  5];
+    await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
     await instance
-      .assignKey(_id, accounts[1], false, time + 4 * hour, 6)
+      .assignKey(_id, accounts[1], false, 0, time + 4 * hour, 6)
       .should.be.rejectedWith("revert");
   });
 
   it("assignKey reverts for _uses increase _to infinity", async () => {
-    const [_assignable, _expiration, _uses] = [true, time + 5 * hour, 5];
-    await instance.grantKey_(_id, _owner, _assignable, _expiration, _uses);
+    const [_assignable, _startTime, _expiration, _uses] = [true,0,  time + 5 * hour,  5];
+    await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
     await instance
-      .assignKey(_id, accounts[1], false, time + 4 * hour, 0)
+      .assignKey(_id, accounts[1], false, 0, time + 4 * hour, 0)
       .should.be.rejectedWith("revert");
   });
 
   it("assignKey reverts for non-_assignable key", async () => {
-    const [_assignable, _expiration, _uses] = [false, time + 5 * hour, 5];
-    await instance.grantKey_(_id, _owner, _assignable, _expiration, _uses);
+    const [_assignable, _startTime, _expiration, _uses] = [false,0,  time + 5 * hour,  5];
+    await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
     await instance
-      .assignKey(_id, accounts[1], false, time + 4 * hour, 3)
+      .assignKey(_id, accounts[1], false, 0, time + 4 * hour, 3)
       .should.be.rejectedWith("revert");
   });
 
   it("assignKey reverts for invalid merger (_expiration not equal)", async () => {
-    const [_assignable, _expiration, _uses] = [true, time + 5 * hour, 5];
-    await instance.grantKey_(_id, _owner, _assignable, _expiration, _uses);
-    await instance.grantKey_(_id, accounts[1], false, time + 4 * hour, _uses);
+    const [_assignable, _startTime, _expiration, _uses] = [true,0,  time + 5 * hour,  5];
+    await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
+    await instance.grantKey_(_id, accounts[1], false, 0, time + 4 * hour, _uses);
     await instance
-      .assignKey(_id, accounts[1], false, time + 3 * hour, 3)
+      .assignKey(_id, accounts[1], false, 0, time + 3 * hour, 3)
       .should.be.rejectedWith("revert");
   });
 
   it("assignKey reverts for invalid merger (_assignable not equal)", async () => {
-    const [_assignable, _expiration, _uses] = [true, time + 5 * hour, 5];
-    await instance.grantKey_(_id, _owner, _assignable, _expiration, _uses);
-    await instance.grantKey_(_id, accounts[1], true, time + 4 * hour, _uses);
+    const [_assignable, _startTime, _expiration, _uses] = [true,0,  time + 5 * hour,  5];
+    await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
+    await instance.grantKey_(_id, accounts[1], true, 0, time + 4 * hour, _uses);
     await instance
-      .assignKey(_id, accounts[1], false, time + 4 * hour, 3)
+      .assignKey(_id, accounts[1], false, 0, time + 4 * hour, 3)
       .should.be.rejectedWith("revert");
   });
 
   it("revokeKey deletes the senders key and emits event", async () => {
-    const [_assignable, _expiration, _uses] = [true, time + 5 * hour, 0];
-    await instance.grantKey_(_id, _owner, _assignable, _expiration, _uses);
+    const [_assignable, _startTime, _expiration, _uses] = [true,0,  time + 5 * hour,  0];
+    await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
 
     // _owner key
     let k = key(await instance.keys(_id, _owner));

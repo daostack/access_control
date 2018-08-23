@@ -16,6 +16,7 @@ contract Protected {
     struct Key {
         bool exists;
         bool assignable;
+        uint80 startTime; // zero = effective immediately
         uint80 expiration; // zero = no expiration
         uint80 uses; // zero = infinite uses
     }
@@ -28,6 +29,7 @@ contract Protected {
         address indexed _from, // zero = granted by contract
         address indexed _to,
         bool _assignable,
+        uint80 _startTime,
         uint80 _expiration,
         uint80 _uses
     );
@@ -69,6 +71,7 @@ contract Protected {
         bytes32 _id,
         address _to,
         bool _assignable,
+        uint80 _startTime,
         uint80 _expiration,
         uint80 _uses
     ) public
@@ -96,7 +99,7 @@ contract Protected {
                 }
             }
         } else {
-            keys[_id][_to] = Key(true, _assignable, _expiration, _uses);
+            keys[_id][_to] = Key(true, _assignable, _startTime, _expiration, _uses);
         }
 
         emit AssignKey(
@@ -104,6 +107,7 @@ contract Protected {
             msg.sender,
             _to,
             _assignable,
+            _startTime,
             _expiration,
             _uses
         );
@@ -124,6 +128,7 @@ contract Protected {
             _id,
             _to,
             key.assignable,
+            key.startTime,
             key.expiration,
             key.uses
         );
@@ -159,6 +164,7 @@ contract Protected {
         bytes32 _id,
         address _to,
         bool _assignable,
+        uint80 _startTime,
         uint80 _expiration,
         uint80 _uses
     ) internal
@@ -167,6 +173,7 @@ contract Protected {
 
         keys[_id][_to].exists = true;
         keys[_id][_to].assignable = _assignable;
+        keys[_id][_to].startTime = _startTime;
         keys[_id][_to].expiration = _expiration;
         keys[_id][_to].uses = _uses;
 
@@ -175,6 +182,7 @@ contract Protected {
             0,
             _to,
             _assignable,
+            _startTime,
             _expiration,
             _uses
         );
@@ -194,6 +202,7 @@ contract Protected {
             _id,
             _to,
             true,
+            0,
             0,
             0
         );

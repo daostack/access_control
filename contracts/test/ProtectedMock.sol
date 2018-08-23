@@ -12,6 +12,7 @@ contract ProtectedMock is Protected {
         bytes32 _id,
         address _to,
         bool _assignable,
+        uint80 _startTime,
         uint80 _expiration,
         uint80 _uses
     ) public
@@ -20,6 +21,7 @@ contract ProtectedMock is Protected {
             _id,
             _to,
             _assignable,
+            _startTime,
             _expiration,
             _uses
         );
