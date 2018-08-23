@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "./lib/SafeMath80.sol";
 
 
 /**
@@ -8,7 +8,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
  * @dev base class that gives contracts a sophisticated access control mechanism
  */
 contract Protected {
-    using SafeMath for uint;
+    using SafeMath80 for uint80;
 
     // Random placeholder for irrelevent params in lock _id. e.g. `unlock(keccak256(abi.encodePacked("method", param1, ANYTHING, param2)))`
     uint internal constant ANYTHING = uint(keccak256("ANYTHING"));
@@ -16,8 +16,8 @@ contract Protected {
     struct Key {
         bool exists;
         bool assignable;
-        uint expiration; // zero = no expiration
-        uint uses; // zero = infinite uses
+        uint80 expiration; // zero = no expiration
+        uint80 uses; // zero = infinite uses
     }
 
     //      id                 owner      key
@@ -28,8 +28,8 @@ contract Protected {
         address indexed _from, // zero = granted by contract
         address indexed _to,
         bool _assignable,
-        uint _expiration,
-        uint _uses
+        uint80 _expiration,
+        uint80 _uses
     );
     event RevokeKey(
         bytes32 indexed _id,
@@ -42,7 +42,7 @@ contract Protected {
      * @param _expiration expiration block timestamp
      * @return is the expiration valid
      */
-    function isValidExpiration(uint _expiration) public view returns (bool valid) {
+    function isValidExpiration(uint80 _expiration) public view returns (bool valid) {
         // solium-disable-next-line security/no-block-members
         return _expiration == 0 || _expiration >= now;
     }
@@ -69,8 +69,8 @@ contract Protected {
         bytes32 _id,
         address _to,
         bool _assignable,
-        uint _expiration,
-        uint _uses
+        uint80 _expiration,
+        uint80 _uses
     ) public
     {
         Key memory key = keys[_id][msg.sender];
@@ -159,8 +159,8 @@ contract Protected {
         bytes32 _id,
         address _to,
         bool _assignable,
-        uint _expiration,
-        uint _uses
+        uint80 _expiration,
+        uint80 _uses
     ) internal
     {
         require(isValidExpiration(_expiration), "Expiration must be in the future");
@@ -220,7 +220,7 @@ contract Protected {
         return false;
     }
 
-    function subtractUses(bytes32 _id, uint _uses) private {
+    function subtractUses(bytes32 _id, uint80 _uses) private {
         Key memory key = keys[_id][msg.sender];
         if (key.uses > 0) {
             if (key.uses == _uses) {

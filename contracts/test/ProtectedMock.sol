@@ -12,8 +12,8 @@ contract ProtectedMock is Protected {
         bytes32 _id,
         address _to,
         bool _assignable,
-        uint _expiration,
-        uint _uses
+        uint80 _expiration,
+        uint80 _uses
     ) public
     {
         return grantKey(
