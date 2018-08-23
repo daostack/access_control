@@ -41,8 +41,7 @@ contract Protected {
 
     /**
      * @dev is the current block timestamp less than `_expiration`
-     * @param _expiration expiration block timestamp
-     * @return is the expiration valid
+     * @param _expiration block timestamp
      */
     function isValidExpiration(uint80 _expiration) public view returns (bool valid) {
         // solium-disable-next-line security/no-block-members
@@ -56,7 +55,7 @@ contract Protected {
      */
     function unlockable(bytes32 _id, address _owner) public view returns (bool) {
         Key memory key = keys[_id][_owner];
-        return key.exists && isValidExpiration(key.expiration);
+        return key.exists && isValidExpiration(key.expiration) && (key.startTime == 0 || key.startTime <= now);
     }
 
     /**
@@ -77,14 +76,18 @@ contract Protected {
     ) public
     {
         Key memory key = keys[_id][msg.sender];
-        require(key.exists && isValidExpiration(key.expiration), "Invalid key");
+        require(unlockable(_id, msg.sender), "Invalid key");
         require(key.assignable, "Key is not assignable");
+        require(key.startTime == 0 || (_startTime >= key.startTime && _startTime > 0), "Cannot reduce key's start time");
         require(key.expiration == 0 || (_expiration <= key.expiration && _expiration > 0), "Cannot extend key's expiration");
-        require(key.uses == 0 || (_uses <= key.uses && _uses > 0), "Not enough uses avaiable");
+        require(_startTime == 0 || _expiration == 0 || _startTime < _expiration, "Start time must be strictly less than expiration");
         require(isValidExpiration(_expiration), "Expiration must be in the future");
+        require(isValidExpiration(_startTime), "Start time must be in the future");
+        require(key.uses == 0 || (_uses <= key.uses && _uses > 0), "Not enough uses avaiable");
 
         require(
-            !unlockable(_id, _to) || (keys[_id][_to].assignable == _assignable && keys[_id][_to].expiration == _expiration),
+            (!unlockable(_id, _to) && keys[_id][_to].startTime <= now) ||
+            (keys[_id][_to].assignable == _assignable && keys[_id][_to].expiration == _expiration && keys[_id][_to].startTime == _startTime),
             "Cannot merge into recepeint's key"
         );
 
@@ -169,6 +172,8 @@ contract Protected {
         uint80 _uses
     ) internal
     {
+        require(_startTime == 0 || _expiration == 0 || _startTime < _expiration, "Start time must be strictly less than expiration");
+        require(isValidExpiration(_startTime), "Start time must be in the future");
         require(isValidExpiration(_expiration), "Expiration must be in the future");
 
         keys[_id][_to].exists = true;
