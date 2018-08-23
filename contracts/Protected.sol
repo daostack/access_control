@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "./lib/SafeMath80.sol";
+import "../lib/SafeMath80.sol";
 
 
 /**
@@ -85,8 +85,9 @@ contract Protected {
         require(_startTime == 0 || _startTime >= now, "Start time must be in the future");
         require(key.uses == 0 || (_uses <= key.uses && _uses > 0), "Not enough uses avaiable");
 
+        bool possesKey = (!unlockable(_id, _to) && keys[_id][_to].startTime <= now);
         require(
-            (!unlockable(_id, _to) && keys[_id][_to].startTime <= now) ||
+            possesKey ||
             (keys[_id][_to].assignable == _assignable && keys[_id][_to].expiration == _expiration && keys[_id][_to].startTime == _startTime),
             "Cannot merge into recepeint's key"
         );
@@ -183,7 +184,14 @@ contract Protected {
         require(isValidExpiration(_startTime), "Start time must be in the future");
         require(isValidExpiration(_expiration), "Expiration must be in the future");
 
-        setKey(_id, _to, _assignable, _startTime, _expiration, _uses);
+        setKey(
+            _id,
+            _to,
+            _assignable,
+            _startTime,
+            _expiration,
+            _uses
+        );
 
         emit AssignKey(
             _id,
