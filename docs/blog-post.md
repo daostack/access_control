@@ -12,7 +12,7 @@ In the context of the blockchain, we treat contract's methods as the resources u
 
 We created a contract that tracks which accounts are in possesion of which keys.
 
-Keys can have the following features:
+Keys can have the following characterisitics:
 
 1. Is the key assignable to other accounts?
 2. From what time it can be used? (can be immediately)
@@ -123,7 +123,7 @@ Take a look at the specification & discussion [here](https://github.com/ethereum
 
 ## Future directions
 
-There are many things we can improve in the future:
+There's a ton to improve and here are some promising ideas we plan to work on:
 
 1. User Groups — The ability to grant/assign/revoke keys to collections of accounts with a single method call.
 2. Contract as a service — Implementing a singleton contract that globally manages locks & keys for all contracts will allow contracts to share locks for a method and interact in more sophisticated ways.

@@ -20,7 +20,7 @@ contract Company is Protected {
 
     function hireHRCompany(address _HRCompany, uint80 n_employees)
         public
-        guarantee(unlock("manageHRCompany")) // the sender can mange HR comapines
+        guarantee(unlock("manageHRCompany")) // the sender can manage HR comapines
     {
         // Allow the HRCompany to register up to `n_employees`
         grantKey(
