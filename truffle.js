@@ -12,5 +12,11 @@ module.exports = {
       currency: "USD",
       gasPrice: 1
     }
+  },
+  solc: {
+    optimizer: {
+      enabled: true,
+      runs: 10000
+    }
   }
 };
