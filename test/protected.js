@@ -50,8 +50,22 @@ contract("Protected", accounts => {
       .should.be.rejectedWith("revert");
   });
 
+  it("grantKey reverts when _startTime is in the past", async () => {
+    const [_assignable, _startTime, _expiration, _uses] = [true, time - 1 * hour, 0,  6];
+    instance
+      .grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses)
+      .should.be.rejectedWith("revert");
+  });
+
+  it("grantKey reverts when _startTime is greater than _expiration", async () => {
+    const [_assignable, _startTime, _expiration, _uses] = [true, time + 2 * hour, time + 1 * hour,  6];
+    instance
+      .grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses)
+      .should.be.rejectedWith("revert");
+  });
+
   it("grantKey updates keys and emits an event", async () => {
-    const [_assignable, _startTime, _expiration, _uses] = [true,0,  time + 1 * hour,  6];
+    const [_assignable, _startTime, _expiration, _uses] = [true, time + 1 * hour,  time + 2 * hour,  6];
     const tx = await instance.grantKey_(
       _id,
       _owner,
@@ -65,6 +79,7 @@ contract("Protected", accounts => {
     // updates key
     expect(k.exists).to.equal(true);
     expect(k.assignable).to.equal(_assignable);
+    k.startTime.should.to.be.bignumber.equal(_startTime);
     k.expiration.should.to.be.bignumber.equal(_expiration);
     k.uses.should.to.be.bignumber.equal(_uses);
 
@@ -74,25 +89,41 @@ contract("Protected", accounts => {
     AssignKey._from.should.be.bignumber.equal(0);
     AssignKey._to.should.be.bignumber.equal(_owner);
     AssignKey._assignable.should.be.equal(_assignable);
+    AssignKey._startTime.should.be.bignumber.equal(_startTime);
     AssignKey._expiration.should.be.bignumber.equal(_expiration);
     AssignKey._uses.should.be.bignumber.equal(_uses);
   });
 
   it("grantFullKey reverts when _expiration is in the past", async () => {
-    const [_assignable, _startTime, _expiration, _uses] = [true,0,  time - 1 * hour,  6];
+    const [_assignable, _startTime, _expiration, _uses] = [true, 0, time - 1 * hour,  6];
+    instance
+      .grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses)
+      .should.be.rejectedWith("revert");
+  });
+
+  it("grantFullKey reverts when _startTime is in the past", async () => {
+    const [_assignable, _startTime, _expiration, _uses] = [true, time - 1 * hour, 0,  6];
+    instance
+      .grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses)
+      .should.be.rejectedWith("revert");
+  });
+
+  it("grantFullKey reverts when _startTime is greater than _expiration", async () => {
+    const [_assignable, _startTime, _expiration, _uses] = [true, time + 2 * hour, time + 1 * hour,  6];
     instance
       .grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses)
       .should.be.rejectedWith("revert");
   });
 
   it("grantFullKey updates keys and emits an event", async () => {
-    const [_assignable, _startTime, _expiration, _uses] = [true,0,  0,  0];
+    const [_assignable, _startTime, _expiration, _uses] = [true, 0,  0,  0];
     const tx = await instance.grantFullKey_(_id, _owner);
     const k = key(await instance.keys(_id, _owner));
 
     // updates key
     expect(k.exists).to.equal(true);
     expect(k.assignable).to.equal(_assignable);
+    k.startTime.should.to.be.bignumber.equal(_startTime);
     k.expiration.should.to.be.bignumber.equal(_expiration);
     k.uses.should.to.be.bignumber.equal(_uses);
 
@@ -102,6 +133,7 @@ contract("Protected", accounts => {
     AssignKey._from.should.be.bignumber.equal(0);
     AssignKey._to.should.be.bignumber.equal(_owner);
     AssignKey._assignable.should.be.equal(_assignable);
+    AssignKey._startTime.should.be.bignumber.equal(_startTime);
     AssignKey._expiration.should.be.bignumber.equal(_expiration);
     AssignKey._uses.should.be.bignumber.equal(_uses);
   });
@@ -119,6 +151,10 @@ contract("Protected", accounts => {
     expect(k.assignable).to.equal(
       _assignable,
       "key should be still _assignable"
+    );
+    k.startTime.should.to.be.bignumber.equal(
+      _startTime,
+      "key should have the same _startTime"
     );
     k.expiration.should.to.be.bignumber.equal(
       _expiration,
@@ -152,6 +188,15 @@ contract("Protected", accounts => {
     await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
     await forward(5 * hour);
     now().should.almost.equal(time + 5 * hour);
+    const result = await instance.unlock_.call(_id);
+    expect(result).to.equal(false, "result should be false");
+  });
+
+  it("unlock returns false for not yet active key", async () => {
+    const [_assignable, _startTime, _expiration, _uses] = [false, time + 5 * hour, 0,  5];
+    await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
+    await forward(4 * hour);
+    now().should.almost.equal(time + 4 * hour);
     const result = await instance.unlock_.call(_id);
     expect(result).to.equal(false, "result should be false");
   });
@@ -209,7 +254,18 @@ contract("Protected", accounts => {
     expect(result).to.equal(false);
   });
 
-  it("unlockable returns true for key with no _expiration", async () => {
+  it("unlockable returns false for not yet active key", async () => {
+    const [_assignable, _startTime, _expiration, _uses] = [false, time + 5 * hour, 0,  5];
+    await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
+    let result = await instance.unlockable(_id, _owner);
+    expect(result).to.equal(false);
+    await forward(5 * hour);
+    now().should.almost.equal(time + 5 * hour);
+    result = await instance.unlockable(_id, _owner);
+    expect(result).to.equal(true);
+  });
+
+  it("unlockable returns true for key with no _expiration and no _startTime", async () => {
     const [_assignable, _startTime, _expiration, _uses] = [false,0,  0,  5];
     await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
     let result = await instance.unlockable(_id, _owner);
@@ -221,9 +277,9 @@ contract("Protected", accounts => {
   });
 
   it("assignKey updates both keys for correct params (no merge) and emits event", async () => {
-    const [_assignable, _startTime, _expiration, _uses] = [true,0,  time + 5 * hour,  5];
+    const [_assignable, _startTime, _expiration, _uses] = [true, time + 1 * hour, time + 5 * hour,  5];
     await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
-
+  
     // recipient key
     let recipientKey = key(await instance.keys(_id, accounts[1]));
     assert.isTrue(
@@ -235,7 +291,7 @@ contract("Protected", accounts => {
       _id,
       accounts[1],
       false,
-      0,
+      time + 2 * hour,
       time + 4 * hour,
       3
     );
@@ -246,6 +302,10 @@ contract("Protected", accounts => {
     expect(ownerKey.assignable).to.equal(
       true,
       "_owner key should still be _assignable"
+    );
+    ownerKey.startTime.should.be.bignumber.equal(
+      _startTime,
+      "_owner key should still have the same _startTime"
     );
     ownerKey.expiration.should.be.bignumber.equal(
       _expiration,
@@ -266,6 +326,10 @@ contract("Protected", accounts => {
       false,
       "recipient should not be _assignable"
     );
+    recipientKey.startTime.should.be.bignumber.equal(
+      time + 2 * hour,
+      "recipient key should have correct _startTime"
+    );
     recipientKey.expiration.should.be.bignumber.equal(
       time + 4 * hour,
       "recipient key should have correct _expiration"
@@ -281,6 +345,7 @@ contract("Protected", accounts => {
     AssignKey._from.should.be.bignumber.equal(_owner);
     AssignKey._to.should.be.bignumber.equal(accounts[1]);
     AssignKey._assignable.should.be.equal(false);
+    AssignKey._startTime.should.be.bignumber.equal(time + 2 * hour);
     AssignKey._expiration.should.be.bignumber.equal(time + 4 * hour);
     AssignKey._uses.should.be.bignumber.equal(3);
   });
@@ -301,6 +366,10 @@ contract("Protected", accounts => {
     expect(recipientKey.assignable).to.equal(
       false,
       "recipient should be not _assignable at the begining"
+    );
+    recipientKey.startTime.should.be.bignumber.equal(
+      0,
+      "recipient key should have correct _startTime at the begining"
     );
     recipientKey.expiration.should.be.bignumber.equal(
       time + 5 * hour,
@@ -327,6 +396,10 @@ contract("Protected", accounts => {
       true,
       "_owner key should still be _assignable"
     );
+    ownerKey.startTime.should.be.bignumber.equal(
+      _startTime,
+      "_owner key should still have the same _startTime"
+    );
     ownerKey.expiration.should.be.bignumber.equal(
       _expiration,
       "_owner key should still have the same _expiration"
@@ -346,6 +419,10 @@ contract("Protected", accounts => {
       false,
       "recipient should still not be _assignable"
     );
+    recipientKey.startTime.should.be.bignumber.equal(
+      0,
+      "recipient key should have correct _startTime"
+    );
     recipientKey.expiration.should.be.bignumber.equal(
       time + 10 * hour,
       "recipient key should have correct _expiration"
@@ -361,6 +438,7 @@ contract("Protected", accounts => {
     AssignKey._from.should.be.bignumber.equal(_owner);
     AssignKey._to.should.be.bignumber.equal(accounts[1]);
     AssignKey._assignable.should.be.equal(false);
+    AssignKey._startTime.should.be.bignumber.equal(0);
     AssignKey._expiration.should.be.bignumber.equal(time + 10 * hour);
     AssignKey._uses.should.be.bignumber.equal(3);
   });
@@ -380,6 +458,10 @@ contract("Protected", accounts => {
       false,
       "recipient should be not _assignable at the begining"
     );
+    recipientKey.startTime.should.be.bignumber.equal(
+      0,
+      "recipient key should have correct _startTime at the begining"
+    );
     recipientKey.expiration.should.be.bignumber.equal(
       time + 4 * hour,
       "recipient key should have correct _expiration at the begining"
@@ -405,6 +487,10 @@ contract("Protected", accounts => {
       true,
       "_owner key should still be _assignable"
     );
+    ownerKey.startTime.should.be.bignumber.equal(
+      _startTime,
+      "_owner key should still have the same _startTime"
+    );
     ownerKey.expiration.should.be.bignumber.equal(
       _expiration,
       "_owner key should still have the same _expiration"
@@ -424,6 +510,10 @@ contract("Protected", accounts => {
       false,
       "recipient should still not be _assignable"
     );
+    recipientKey.startTime.should.be.bignumber.equal(
+      0,
+      "recipient key should have correct _startTime"
+    );
     recipientKey.expiration.should.be.bignumber.equal(
       time + 4 * hour,
       "recipient key should have correct _expiration"
@@ -439,6 +529,7 @@ contract("Protected", accounts => {
     AssignKey._from.should.be.bignumber.equal(_owner);
     AssignKey._to.should.be.bignumber.equal(accounts[1]);
     AssignKey._assignable.should.be.equal(false);
+    AssignKey._startTime.should.be.bignumber.equal(0);
     AssignKey._expiration.should.be.bignumber.equal(time + 4 * hour);
     AssignKey._uses.should.be.bignumber.equal(3);
   });
@@ -458,6 +549,10 @@ contract("Protected", accounts => {
       false,
       "recipient should be not _assignable at the begining"
     );
+    recipientKey.startTime.should.be.bignumber.equal(
+      0,
+      "recipient key should have correct _startTimen at the begining"
+    );
     recipientKey.expiration.should.be.bignumber.equal(
       time + 4 * hour,
       "recipient key should have correct _expiration at the begining"
@@ -483,6 +578,10 @@ contract("Protected", accounts => {
       true,
       "_owner key should still be _assignable"
     );
+    ownerKey.startTime.should.be.bignumber.equal(
+      _startTime,
+      "_owner key should still have the same _startTime"
+    );
     ownerKey.expiration.should.be.bignumber.equal(
       _expiration,
       "_owner key should still have the same _expiration"
@@ -502,6 +601,10 @@ contract("Protected", accounts => {
       false,
       "recipient should still not be _assignable"
     );
+    recipientKey.startTime.should.be.bignumber.equal(
+      0,
+      "recipient key should have correct _startTime"
+    );
     recipientKey.expiration.should.be.bignumber.equal(
       time + 4 * hour,
       "recipient key should have correct _expiration"
@@ -517,6 +620,7 @@ contract("Protected", accounts => {
     AssignKey._from.should.be.bignumber.equal(_owner);
     AssignKey._to.should.be.bignumber.equal(accounts[1]);
     AssignKey._assignable.should.be.equal(false);
+    AssignKey._startTime.should.be.bignumber.equal(0);
     AssignKey._expiration.should.be.bignumber.equal(time + 4 * hour);
     AssignKey._uses.should.be.bignumber.equal(0);
   });
@@ -535,6 +639,10 @@ contract("Protected", accounts => {
     expect(recipientKey.assignable).to.equal(
       false,
       "recipient should be not _assignable at the begining"
+    );
+    recipientKey.startTime.should.be.bignumber.equal(
+      0,
+      "recipient key should have correct _startTime at the begining"
     );
     recipientKey.expiration.should.be.bignumber.equal(
       time + 4 * hour,
@@ -561,6 +669,10 @@ contract("Protected", accounts => {
       true,
       "_owner key should still be _assignable"
     );
+    ownerKey.startTime.should.be.bignumber.equal(
+      _startTime,
+      "_owner key should still have the same _startTime"
+    );
     ownerKey.expiration.should.be.bignumber.equal(
       _expiration,
       "_owner key should still have the same _expiration"
@@ -580,6 +692,10 @@ contract("Protected", accounts => {
       false,
       "recipient should still not be _assignable"
     );
+    recipientKey.startTime.should.be.bignumber.equal(
+      0,
+      "recipient key should have correct _startTime"
+    );
     recipientKey.expiration.should.be.bignumber.equal(
       time + 4 * hour,
       "recipient key should have correct _expiration"
@@ -595,6 +711,7 @@ contract("Protected", accounts => {
     AssignKey._from.should.be.bignumber.equal(_owner);
     AssignKey._to.should.be.bignumber.equal(accounts[1]);
     AssignKey._assignable.should.be.equal(false);
+    AssignKey._startTime.should.be.bignumber.equal(0);
     AssignKey._expiration.should.be.bignumber.equal(time + 4 * hour);
     AssignKey._uses.should.be.bignumber.equal(3);
   });
@@ -613,6 +730,10 @@ contract("Protected", accounts => {
     expect(recipientKey.assignable).to.equal(
       false,
       "recipient should be not _assignable at the begining"
+    );
+    recipientKey.startTime.should.be.bignumber.equal(
+      0,
+      "recipient key should have correct _startTime at the begining"
     );
     recipientKey.expiration.should.be.bignumber.equal(
       time + 4 * hour,
@@ -638,6 +759,10 @@ contract("Protected", accounts => {
     expect(ownerKey.assignable).to.equal(
       true,
       "_owner key should still be _assignable"
+    );
+    ownerKey.startTime.should.be.bignumber.equal(
+      _startTime,
+      "_owner key should still have the same _startTime"
     );
     ownerKey.expiration.should.be.bignumber.equal(
       _expiration,
@@ -658,6 +783,10 @@ contract("Protected", accounts => {
       false,
       "recipient should still not be _assignable"
     );
+    recipientKey.startTime.should.be.bignumber.equal(
+      0,
+      "recipient key should have correct _startTime"
+    );
     recipientKey.expiration.should.be.bignumber.equal(
       time + 4 * hour,
       "recipient key should have correct _expiration"
@@ -673,6 +802,7 @@ contract("Protected", accounts => {
     AssignKey._from.should.be.bignumber.equal(_owner);
     AssignKey._to.should.be.bignumber.equal(accounts[1]);
     AssignKey._assignable.should.be.equal(false);
+    AssignKey._startTime.should.be.bignumber.equal(0);
     AssignKey._expiration.should.be.bignumber.equal(time + 4 * hour);
     AssignKey._uses.should.be.bignumber.equal(3);
   });
@@ -691,6 +821,10 @@ contract("Protected", accounts => {
     expect(recipientKey.assignable).to.equal(
       false,
       "recipient should be not _assignable at the begining"
+    );
+    recipientKey.startTime.should.be.bignumber.equal(
+      0,
+      "recipient key should have correct _startTime at the begining"
     );
     recipientKey.expiration.should.be.bignumber.equal(
       time + 4 * hour,
@@ -717,6 +851,10 @@ contract("Protected", accounts => {
       true,
       "_owner key should still be _assignable"
     );
+    ownerKey.startTime.should.be.bignumber.equal(
+      _startTime,
+      "_owner key should still have the same _startTime"
+    );
     ownerKey.expiration.should.be.bignumber.equal(
       _expiration,
       "_owner key should still have the same _expiration"
@@ -736,6 +874,10 @@ contract("Protected", accounts => {
       false,
       "recipient should still not be _assignable"
     );
+    recipientKey.startTime.should.be.bignumber.equal(
+      0,
+      "recipient key should have correct _startTime"
+    );
     recipientKey.expiration.should.be.bignumber.equal(
       time + 4 * hour,
       "recipient key should have correct _expiration"
@@ -751,6 +893,7 @@ contract("Protected", accounts => {
     AssignKey._from.should.be.bignumber.equal(_owner);
     AssignKey._to.should.be.bignumber.equal(accounts[1]);
     AssignKey._assignable.should.be.equal(false);
+    AssignKey._startTime.should.be.bignumber.equal(0);
     AssignKey._expiration.should.be.bignumber.equal(time + 4 * hour);
     AssignKey._uses.should.be.bignumber.equal(0);
   });
@@ -831,6 +974,15 @@ contract("Protected", accounts => {
       .should.be.rejectedWith("revert");
   });
 
+  it("assignKey reverts for invalid merger (_startTime not equal)", async () => {
+    const [_assignable, _startTime, _expiration, _uses] = [true, 0, time + 5 * hour,  5];
+    await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
+    await instance.grantKey_(_id, accounts[1], true, time + 3 * hour, time + 4 * hour, _uses);
+    await instance
+      .assignKey(_id, accounts[1], true, time + 4 * hour, time + 4 * hour, 3)
+      .should.be.rejectedWith("revert");
+  });
+
   it("revokeKey deletes the senders key and emits event", async () => {
     const [_assignable, _startTime, _expiration, _uses] = [true,0,  time + 5 * hour,  0];
     await instance.grantKey_(_id, _owner, _assignable, _startTime, _expiration, _uses);
@@ -841,6 +993,10 @@ contract("Protected", accounts => {
     expect(k.assignable).to.equal(
       _assignable,
       "_owner key should be _assignable in the begining"
+    );
+    k.startTime.should.be.bignumber.equal(
+      _startTime,
+      "_owner key should have the correct _startTime in the begining"
     );
     k.expiration.should.be.bignumber.equal(
       _expiration,

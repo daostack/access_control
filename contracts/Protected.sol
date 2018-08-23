@@ -76,13 +76,13 @@ contract Protected {
     ) public
     {
         Key memory key = keys[_id][msg.sender];
-        require(unlockable(_id, msg.sender), "Invalid key");
+        require(key.exists && isValidExpiration(key.expiration), "Invalid key");
         require(key.assignable, "Key is not assignable");
         require(key.startTime == 0 || (_startTime >= key.startTime && _startTime > 0), "Cannot reduce key's start time");
         require(key.expiration == 0 || (_expiration <= key.expiration && _expiration > 0), "Cannot extend key's expiration");
         require(_startTime == 0 || _expiration == 0 || _startTime < _expiration, "Start time must be strictly less than expiration");
         require(isValidExpiration(_expiration), "Expiration must be in the future");
-        require(isValidExpiration(_startTime), "Start time must be in the future");
+        require(_startTime == 0 || _startTime >= now, "Start time must be in the future");
         require(key.uses == 0 || (_uses <= key.uses && _uses > 0), "Not enough uses avaiable");
 
         require(
