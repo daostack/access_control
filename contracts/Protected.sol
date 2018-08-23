@@ -102,7 +102,14 @@ contract Protected {
                 }
             }
         } else {
-            keys[_id][_to] = Key(true, _assignable, _startTime, _expiration, _uses);
+            setKey(
+                _id,
+                _to,
+                _assignable,
+                _startTime,
+                _expiration,
+                _uses
+            );
         }
 
         emit AssignKey(
@@ -151,7 +158,7 @@ contract Protected {
      * @param _owner the account address
      */
     function revokeOwnerKey(bytes32 _id, address _owner) internal {
-        delete keys[_id][_owner];
+        deleteKey(_id, _owner);
         emit RevokeKey(_id, _owner);
     }
 
@@ -176,11 +183,7 @@ contract Protected {
         require(isValidExpiration(_startTime), "Start time must be in the future");
         require(isValidExpiration(_expiration), "Expiration must be in the future");
 
-        keys[_id][_to].exists = true;
-        keys[_id][_to].assignable = _assignable;
-        keys[_id][_to].startTime = _startTime;
-        keys[_id][_to].expiration = _expiration;
-        keys[_id][_to].uses = _uses;
+        setKey(_id, _to, _assignable, _startTime, _expiration, _uses);
 
         emit AssignKey(
             _id,
@@ -238,10 +241,63 @@ contract Protected {
         Key memory key = keys[_id][msg.sender];
         if (key.uses > 0) {
             if (key.uses == _uses) {
-                delete keys[_id][msg.sender];
+                deleteKey(_id, msg.sender);
             } else {
                 keys[_id][msg.sender].uses = keys[_id][msg.sender].uses.sub(_uses);
             }
+        }
+    }
+
+    function setKey(
+        bytes32 _id,
+        address _to,
+        bool _assignable,
+        uint80 _startTime,
+        uint80 _expiration,
+        uint80 _uses
+    ) private
+    {
+        Key memory key = keys[_id][_to];
+        if (!key.exists) {
+            keys[_id][_to].exists = true;
+        }
+
+        if (_assignable != key.assignable) {
+            keys[_id][_to].assignable = _assignable;
+        }
+
+        if (_startTime != key.startTime) {
+            keys[_id][_to].startTime = _startTime;
+        }
+
+        if (_expiration != key.expiration) {
+            keys[_id][_to].expiration = _expiration;
+        }
+
+        if (_uses != key.uses) {
+            keys[_id][_to].uses = _uses;
+        }
+    }
+
+    function deleteKey(bytes32 _id, address _to) private {
+        Key memory key = keys[_id][_to];
+
+        keys[_id][_to].exists = false;
+
+        if (key.assignable) {
+            keys[_id][_to].assignable = false;
+        }
+
+        if (key.startTime != 0) {
+            keys[_id][_to].startTime = 0;
+        }
+
+        if (key.expiration != 0) {
+            keys[_id][_to].expiration = 0;
+        }
+
+        if (key.uses != 0) {
+            keys[_id][_to].uses = 0;
         }
     }
 }
