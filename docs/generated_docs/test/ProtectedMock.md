@@ -2,11 +2,11 @@
 [see the source](git+https://github.com/daostack/access_control/tree/master/contracts/test/ProtectedMock.sol)
 
 
-**Execution cost**: less than 632 gas
+**Execution cost**: less than 638 gas
 
-**Deployment cost**: less than 597600 gas
+**Deployment cost**: less than 602000 gas
 
-**Combined cost**: less than 598232 gas
+**Combined cost**: less than 602638 gas
 
 
 ## Events
@@ -25,7 +25,7 @@ Params:
 5. **_expiration** *of type `uint256`*
 6. **_uses** *of type `uint256`*
 
----
+--- 
 ### RevokeKey(bytes32,address)
 
 
@@ -59,7 +59,7 @@ Params:
 
 
 
----
+--- 
 ### assignKey(bytes32,address,bool,uint256,uint256)
 >
 > transfer partial or all capabilities from the sender to an account
@@ -92,7 +92,7 @@ Params:
 
 
 
----
+--- 
 ### grantFullKey_(bytes32,address)
 
 
@@ -105,7 +105,7 @@ Params:
 2. **_to** *of type `address`*
 
 
----
+--- 
 ### grantKey_(bytes32,address,bool,uint256,uint256)
 
 
@@ -121,7 +121,7 @@ Params:
 5. **_uses** *of type `uint256`*
 
 
----
+--- 
 ### isValidExpiration(uint256)
 >
 > is the current block timestamp less than `_expiration`
@@ -145,7 +145,7 @@ Returns:
 
 1. **valid** *of type `bool`*
 
----
+--- 
 ### keys(bytes32,address)
 
 
@@ -167,7 +167,7 @@ Returns:
 3. **expiration** *of type `uint256`*
 4. **uses** *of type `uint256`*
 
----
+--- 
 ### revokeKey(bytes32)
 >
 > revoke the sender's key
@@ -184,7 +184,7 @@ Params:
 
 
 
----
+--- 
 ### revokeOwnerKey_(bytes32,address)
 
 
@@ -197,7 +197,7 @@ Params:
 2. **_owner** *of type `address`*
 
 
----
+--- 
 ### unlock_(bytes32)
 
 
@@ -213,7 +213,7 @@ Returns:
 
 1. **output_0** *of type `bool`*
 
----
+--- 
 ### unlockable(bytes32,address)
 >
 > does the owner have a valid key for the lock id
