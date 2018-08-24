@@ -1,3 +1,5 @@
+![AUR](https://img.shields.io/aur/license/yaourt.svg)
+
 # Access Control
 
 [Capability-based access control](https://en.wikipedia.org/wiki/Capability-based_security) for Ethereum smart contracts.
