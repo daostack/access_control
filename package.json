@@ -34,10 +34,14 @@
     "Access",
     "Control",
     "Permissions",
+    "Capability",
     "Security",
     "Role"
   ],
-  "author": "Matan Tsuberi",
+  "authors": [
+    "Matan Tsuberi <mtsuberi@daostack.io>",
+    "Ben Kaufman <ben@daostack.io>"
+  ],
   "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/daostack/access_control/issues"
