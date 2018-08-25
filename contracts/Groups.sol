@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+
 contract Group {
     function isMember(address _account) public view returns(bool);
 
@@ -14,11 +15,12 @@ contract Group {
     }
 }
 
+
 contract FixedGroup is Group {
     mapping(address => bool) members;
 
     constructor(address[] _members) public {
-        for(uint i = 0; i < _members.length; i++) {
+        for (uint i = 0; i < _members.length; i++) {
             members[_members[i]] = true;
         }
     }
@@ -28,6 +30,7 @@ contract FixedGroup is Group {
     }
 }
 
+
 contract UnionGroup is Group {
     Group[] subgroups;
 
@@ -36,14 +39,15 @@ contract UnionGroup is Group {
     }
 
     function isMember(address _account) public view returns(bool) {
-        for(uint i = 0; i < subgroups.length; i++) {
-            if(subgroups[i].isMember(_account)) {
+        for (uint i = 0; i < subgroups.length; i++) {
+            if (subgroups[i].isMember(_account)) {
                 return true;
             }
         }
         return false;
     }
 }
+
 
 contract IntersectionGroup is Group {
     Group[] subgroups;
@@ -53,14 +57,15 @@ contract IntersectionGroup is Group {
     }
 
     function isMember(address _account) public view returns(bool) {
-        for(uint i = 0; i < subgroups.length; i++) {
-            if(!subgroups[i].isMember(_account)) {
+        for (uint i = 0; i < subgroups.length; i++) {
+            if (!subgroups[i].isMember(_account)) {
                 return false;
             }
         }
         return true;
     }
 }
+
 
 contract InverseGroup is Group {
     Group group;
