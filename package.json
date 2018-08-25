@@ -18,7 +18,7 @@
     "test": "truffle test",
     "build": "truffle compile",
     "lint": "solium -d contracts && eslint test",
-    "prepublish": "npm run lint && npm run build && npm run docs:build && npm run docs:deploy",
+    "prepublishOnly": "npm run lint && npm run build && npm run docs:build && npm run docs:deploy",
     "docs:update": "soldoc -q -o docs/generated_docs",
     "docs:build": "soldoc -q -o docs/generated_docs && mkdocs build",
     "docs:deploy": "soldoc -q -o docs/generated_docs && mkdocs gh-deploy --force",
