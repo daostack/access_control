@@ -4,6 +4,11 @@ import "../Protected.sol";
 
 
 contract ProtectedMock is Protected {
+
+    function isValidExpiration_(uint80 _expiration) public view returns(bool _valid) {
+        return isValidExpiration(_expiration);
+    }
+
     function revokeOwnerKey_(bytes32 _id, address _owner) public {
         return revokeOwnerKey(_id, _owner);
     }

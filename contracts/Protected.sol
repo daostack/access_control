@@ -38,15 +38,6 @@ contract Protected {
         address indexed _owner
     );
 
-
-    /**
-     * @dev is the current block timestamp less than `_expiration`
-     * @param _expiration block timestamp
-     */
-    function isValidExpiration(uint80 _expiration) public view returns (bool valid) {
-        return _expiration == 0 || _expiration >= now;
-    }
-
     /**
      * @dev does the owner have a valid key for the lock id
      * @param _id lock id
@@ -147,6 +138,14 @@ contract Protected {
      */
     function revokeKey(bytes32 _id) public {
         revokeOwnerKey(_id, msg.sender);
+    }
+
+    /**
+     * @dev is the current block timestamp less than `_expiration`
+     * @param _expiration block timestamp
+     */
+    function isValidExpiration(uint80 _expiration) internal view returns (bool valid) {
+        return _expiration == 0 || _expiration >= now;
     }
 
     /**

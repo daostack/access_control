@@ -187,43 +187,6 @@ contract("Protected", accounts => {
     expect(result).to.equal(false, "result should be false");
   });
 
-  it("isValidExpiration should return true for infinite _expiration", async () => {
-    let result = await instance.isValidExpiration(0);
-    expect(result).to.equal(true);
-    await forward(10 * hour);
-    now().should.almost.equal(time + 10 * hour);
-    result = await instance.isValidExpiration(0);
-    expect(result).to.equal(true);
-  });
-
-  it("isValidExpiration should work for finite _expiration", async () => {
-    let result = await instance.isValidExpiration(
-      time + 5 * hour + TIME_TOLERANCE
-    );
-    expect(result).to.equal(true, "should return true for current time");
-    await forward(4 * hour);
-    now().should.almost.equal(time + 4 * hour);
-    result = await instance.isValidExpiration(time + 5 * hour + TIME_TOLERANCE);
-    expect(result).to.equal(
-      true,
-      "should return true for 1 time before _expiration"
-    );
-    await forward(1 * hour);
-    now().should.almost.equal(time + 5 * hour);
-    result = await instance.isValidExpiration(time + 5 * hour + TIME_TOLERANCE);
-    expect(result).to.equal(
-      true,
-      "should return true for the _expiration time"
-    );
-    await forward(1 * hour);
-    now().should.almost.equal(time + 6 * hour);
-    result = await instance.isValidExpiration(time + 5 * hour + TIME_TOLERANCE);
-    expect(result).to.equal(
-      false,
-      "should return false for 1 time after _expiration"
-    );
-  });
-
   it("unlockable returns false for non-existent key", async () => {
     const result = await instance.unlockable(_id, _owner);
     expect(result).to.equal(false);
