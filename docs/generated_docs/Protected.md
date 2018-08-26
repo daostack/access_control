@@ -3,11 +3,11 @@
 > Protected
 
 
-**Execution cost**: less than 518 gas
+**Execution cost**: less than 524 gas
 
-**Deployment cost**: less than 486200 gas
+**Deployment cost**: less than 490600 gas
 
-**Combined cost**: less than 486718 gas
+**Combined cost**: less than 491124 gas
 
 
 ## Events
@@ -26,7 +26,7 @@ Params:
 5. **_expiration** *of type `uint256`*
 6. **_uses** *of type `uint256`*
 
----
+--- 
 ### RevokeKey(bytes32,address)
 
 
@@ -60,7 +60,7 @@ Params:
 
 
 
----
+--- 
 ### assignKey(bytes32,address,bool,uint256,uint256)
 >
 > transfer partial or all capabilities from the sender to an account
@@ -93,7 +93,7 @@ Params:
 
 
 
----
+--- 
 ### isValidExpiration(uint256)
 >
 > is the current block timestamp less than `_expiration`
@@ -117,7 +117,7 @@ Returns:
 
 1. **valid** *of type `bool`*
 
----
+--- 
 ### keys(bytes32,address)
 
 
@@ -139,7 +139,7 @@ Returns:
 3. **expiration** *of type `uint256`*
 4. **uses** *of type `uint256`*
 
----
+--- 
 ### revokeKey(bytes32)
 >
 > revoke the sender's key
@@ -156,7 +156,7 @@ Params:
 
 
 
----
+--- 
 ### unlockable(bytes32,address)
 >
 > does the owner have a valid key for the lock id
