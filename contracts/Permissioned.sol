@@ -88,15 +88,25 @@ contract Permissioned is ERC165, ERCTBDStorage {
         Key memory key = keys[_id][msg.sender];
         require(key.exists && isValidExpiration(key.expiration), "Invalid key");
         require(key.assignable, "Key is not assignable");
-        require(_startTime >= key.startTime, "Can't use key before start time");
-        require(_startTime < _expiration || _expiration == 0, "Strat time must be before expiration");
-        require(key.expiration == 0 || _expiration <= key.expiration, "Cannot extend key's expiration");
-        require(key.uses == 0 || _uses <= key.uses, "Not enough uses avaiable");
+        
+        // solium-disable-next-line security/no-block-members
+        require(key.startTime <= now || _startTime >= key.startTime, "Cannot reduce key's future start time");
+        require(key.expiration == 0 || (_expiration <= key.expiration && _expiration > 0), "Cannot extend key's expiration");
+        require(_expiration == 0 || _startTime < _expiration, "Start time must be strictly less than expiration");
         require(isValidExpiration(_expiration), "Expiration must be in the future");
-
+        require(key.uses == 0 || (_uses <= key.uses && _uses > 0), "Not enough uses avaiable");
+        
+        // solium-disable-next-line security/no-block-members
+        bool possesKey = unlockable(_id, _to) || keys[_id][_to].startTime > now;
         require(
-            // solium-disable-next-line security/no-block-members
-            !unlockable(_id, _to) || (keys[_id][_to].assignable == _assignable && keys[_id][_to].expiration == _expiration && (keys[_id][_to].startTime == _startTime || (_startTime < now && keys[_id][_to].startTime < now))),
+            !possesKey || (
+                keys[_id][_to].assignable == _assignable && keys[_id][_to].expiration == _expiration && (
+                    // both in the past or are exactly equal
+                    // solium-disable-next-line security/no-block-members
+                    (keys[_id][_to].startTime <= now && _startTime <= now) ||
+                    keys[_id][_to].startTime == _startTime
+                )
+            ),
             "Cannot merge into recepeint's key"
         );
 
@@ -111,7 +121,7 @@ contract Permissioned is ERC165, ERCTBDStorage {
                 }
             }
         } else {
-            setKey(_id, _to, _assignable, _startTime, _expiration, _uses);
+            keys[_id][_to] = Key(true, _assignable, _startTime, _expiration, _uses);
         }
 
         emit AssignKey(
@@ -154,7 +164,7 @@ contract Permissioned is ERC165, ERCTBDStorage {
     /// @param _id lock id
     /// @param _owner the account address
     function revokeOwnerKey(bytes32 _id, address _owner) internal {
-        deleteKey(_id, _owner);
+        delete keys[_id][_owner];
         emit RevokeKey(_id, _owner);
     }
 
@@ -174,9 +184,14 @@ contract Permissioned is ERC165, ERCTBDStorage {
         uint80 _uses
     ) internal
     {
+        require(_expiration == 0 || _startTime < _expiration, "Start time must be strictly less than expiration");
         require(isValidExpiration(_expiration), "Expiration must be in the future");
 
-        setKey(_id, _to, _assignable, _startTime, _expiration, _uses);
+        keys[_id][_to].exists = true;
+        keys[_id][_to].assignable = _assignable;
+        keys[_id][_to].startTime = _startTime;
+        keys[_id][_to].expiration = _expiration;
+        keys[_id][_to].uses = _uses;
 
         emit AssignKey(
             _id,
@@ -224,64 +239,10 @@ contract Permissioned is ERC165, ERCTBDStorage {
         Key memory key = keys[_id][msg.sender];
         if (key.uses > 0) {
             if (key.uses == _uses) {
-                deleteKey(_id, msg.sender);
+                delete keys[_id][msg.sender];
             } else {
                 keys[_id][msg.sender].uses = keys[_id][msg.sender].uses.sub(_uses);
             }
-        }
-    }
-
-    function setKey(
-        bytes32 _id,
-        address _to,
-        bool _assignable,
-        uint80 _startTime,
-        uint80 _expiration,
-        uint80 _uses
-    ) private 
-    {
-        Key memory key = keys[_id][_to];
-
-        if (!key.exists) {
-            keys[_id][_to].exists = true;
-        }
-
-        if (_assignable != key.assignable) {
-            keys[_id][_to].assignable = _assignable;
-        }
-
-        if (_startTime != key.startTime) {
-            keys[_id][_to].startTime = _startTime;
-        }
-        
-        if (_expiration != key.expiration) {
-            keys[_id][_to].expiration = _expiration;
-        }
-        
-        if (_uses != key.uses) {
-            keys[_id][_to].uses = _uses;
-        }
-    }
-
-    function deleteKey(bytes32 _id, address _to) private {
-        Key memory key = keys[_id][_to];
-        
-        keys[_id][_to].exists = false;
-        
-        if (key.assignable) {
-            keys[_id][_to].assignable = false;
-        }
-
-        if (key.startTime != 0) {
-            keys[_id][_to].startTime = 0;
-        }
-        
-        if (key.expiration != 0) {
-            keys[_id][_to].expiration = 0;
-        }
-        
-        if (key.uses != 0) {
-            keys[_id][_to].uses = 0;
         }
     }
 }
