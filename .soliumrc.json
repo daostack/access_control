@@ -2,6 +2,7 @@
   "extends": "solium:all",
   "plugins": ["security"],
   "rules": {
+    "security/no-block-members": ["warning", ["blockhash"]],
     "quotes": ["error", "double"],
     "indentation": ["error", 4],
     "arg-overflow": ["warning", 5]
