@@ -6,9 +6,8 @@ function key(arr) {
   return {
     exists: arr[0],
     assignable: arr[1],
-    startTime: arr[2],
-    expiration: arr[3],
-    uses: arr[4]
+    expiration: arr[2],
+    uses: arr[3]
   };
 }
 
@@ -20,7 +19,6 @@ function empty(key) {
   return (
     !key.exists &&
     !key.assignable &&
-    key.startTime.isZero() &&
     key.expiration.isZero() &&
     key.uses.isZero()
   );
@@ -55,4 +53,6 @@ function now() {
 
 const hour = 60 * 60;
 
-module.exports = { key, empty, event, forward, now, hour };
+const TIME_TOLERANCE = 7; // 7 seconds tolerance
+
+module.exports = { key, empty, event, forward, now, hour, TIME_TOLERANCE };
