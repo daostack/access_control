@@ -47,9 +47,7 @@
     "url": "https://github.com/daostack/access_control/issues"
   },
   "homepage": "https://github.com/daostack/access_control#readme",
-  "dependencies": {
-    "openzeppelin-solidity": "^1.11.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@soldoc/soldoc": "^0.4.3",
     "chai": "^4.1.2",

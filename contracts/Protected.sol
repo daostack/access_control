@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "../lib/SafeMath80.sol";
 
 
 /**
@@ -8,7 +8,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
  * @dev base class that gives contracts a sophisticated access control mechanism
  */
 contract Protected {
-    using SafeMath for uint;
+    using SafeMath80 for uint80;
 
     // Random placeholder for irrelevent params in lock _id. e.g. `unlock(keccak256(abi.encodePacked("method", param1, ANYTHING, param2)))`
     uint internal constant ANYTHING = uint(keccak256("ANYTHING"));
@@ -16,8 +16,9 @@ contract Protected {
     struct Key {
         bool exists;
         bool assignable;
-        uint expiration; // zero = no expiration
-        uint uses; // zero = infinite uses
+        uint80 startTime; // zero = effective immediately
+        uint80 expiration; // zero = no expiration
+        uint80 uses; // zero = infinite uses
     }
 
     //      id                 owner      key
@@ -28,24 +29,14 @@ contract Protected {
         address indexed _from, // zero = granted by contract
         address indexed _to,
         bool _assignable,
-        uint _expiration,
-        uint _uses
+        uint80 _startTime,
+        uint80 _expiration,
+        uint80 _uses
     );
     event RevokeKey(
         bytes32 indexed _id,
         address indexed _owner
     );
-
-
-    /**
-     * @dev is the current block timestamp less than `_expiration`
-     * @param _expiration expiration block timestamp
-     * @return is the expiration valid
-     */
-    function isValidExpiration(uint _expiration) public view returns (bool valid) {
-        // solium-disable-next-line security/no-block-members
-        return _expiration == 0 || _expiration >= now;
-    }
 
     /**
      * @dev does the owner have a valid key for the lock id
@@ -54,7 +45,7 @@ contract Protected {
      */
     function unlockable(bytes32 _id, address _owner) public view returns (bool) {
         Key memory key = keys[_id][_owner];
-        return key.exists && isValidExpiration(key.expiration);
+        return key.exists && isValidExpiration(key.expiration) && key.startTime <= now;
     }
 
     /**
@@ -69,19 +60,29 @@ contract Protected {
         bytes32 _id,
         address _to,
         bool _assignable,
-        uint _expiration,
-        uint _uses
+        uint80 _startTime,
+        uint80 _expiration,
+        uint80 _uses
     ) public
     {
         Key memory key = keys[_id][msg.sender];
         require(key.exists && isValidExpiration(key.expiration), "Invalid key");
         require(key.assignable, "Key is not assignable");
+        require(key.startTime <= now || _startTime >= key.startTime, "Cannot reduce key's future start time");
         require(key.expiration == 0 || (_expiration <= key.expiration && _expiration > 0), "Cannot extend key's expiration");
-        require(key.uses == 0 || (_uses <= key.uses && _uses > 0), "Not enough uses avaiable");
+        require(_expiration == 0 || _startTime < _expiration, "Start time must be strictly less than expiration");
         require(isValidExpiration(_expiration), "Expiration must be in the future");
+        require(key.uses == 0 || (_uses <= key.uses && _uses > 0), "Not enough uses avaiable");
 
+        bool possesKey = unlockable(_id, _to) || keys[_id][_to].startTime > now;
         require(
-            !unlockable(_id, _to) || (keys[_id][_to].assignable == _assignable && keys[_id][_to].expiration == _expiration),
+            !possesKey || (
+                keys[_id][_to].assignable == _assignable && keys[_id][_to].expiration == _expiration && (
+                    // both in the past or are exactly equal
+                    (keys[_id][_to].startTime <= now && _startTime <= now) ||
+                    keys[_id][_to].startTime == _startTime
+                )
+            ),
             "Cannot merge into recepeint's key"
         );
 
@@ -96,7 +97,7 @@ contract Protected {
                 }
             }
         } else {
-            keys[_id][_to] = Key(true, _assignable, _expiration, _uses);
+            keys[_id][_to] = Key(true, _assignable, _startTime, _expiration, _uses);
         }
 
         emit AssignKey(
@@ -104,6 +105,7 @@ contract Protected {
             msg.sender,
             _to,
             _assignable,
+            _startTime,
             _expiration,
             _uses
         );
@@ -124,6 +126,7 @@ contract Protected {
             _id,
             _to,
             key.assignable,
+            key.startTime,
             key.expiration,
             key.uses
         );
@@ -135,6 +138,14 @@ contract Protected {
      */
     function revokeKey(bytes32 _id) public {
         revokeOwnerKey(_id, msg.sender);
+    }
+
+    /**
+     * @dev is the current block timestamp less than `_expiration`
+     * @param _expiration block timestamp
+     */
+    function isValidExpiration(uint80 _expiration) internal view returns (bool valid) {
+        return _expiration == 0 || _expiration >= now;
     }
 
     /**
@@ -159,14 +170,17 @@ contract Protected {
         bytes32 _id,
         address _to,
         bool _assignable,
-        uint _expiration,
-        uint _uses
+        uint80 _startTime,
+        uint80 _expiration,
+        uint80 _uses
     ) internal
     {
+        require(_expiration == 0 || _startTime < _expiration, "Start time must be strictly less than expiration");
         require(isValidExpiration(_expiration), "Expiration must be in the future");
 
         keys[_id][_to].exists = true;
         keys[_id][_to].assignable = _assignable;
+        keys[_id][_to].startTime = _startTime;
         keys[_id][_to].expiration = _expiration;
         keys[_id][_to].uses = _uses;
 
@@ -175,6 +189,7 @@ contract Protected {
             0,
             _to,
             _assignable,
+            _startTime,
             _expiration,
             _uses
         );
@@ -194,6 +209,7 @@ contract Protected {
             _id,
             _to,
             true,
+            0,
             0,
             0
         );
@@ -220,7 +236,7 @@ contract Protected {
         return false;
     }
 
-    function subtractUses(bytes32 _id, uint _uses) private {
+    function subtractUses(bytes32 _id, uint80 _uses) private {
         Key memory key = keys[_id][msg.sender];
         if (key.uses > 0) {
             if (key.uses == _uses) {
