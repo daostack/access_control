@@ -28,7 +28,8 @@ contract Group {
      * @param _args any arguments to the function.
      */
     function forward(address _to, bytes4 _selector, bytes _args) public payable onlyMember {
-        /// TODO: Figure out how to best forward the call
+        // solium-disable-next-line security/no-low-level-calls
+        require(_to.call(_selector, _args), "Forwarding failed");
     }
 }
 
