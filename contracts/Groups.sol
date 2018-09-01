@@ -42,6 +42,7 @@ contract Group {
     }
 }
 
+
 /**
  * @title Group with fixed members set at creation time.
  */
@@ -58,6 +59,7 @@ contract FixedGroup is Group {
         return members[_account];
     }
 }
+
 
 /**
  * @title Group that comprises of all members belonging to at least one subgroup.
@@ -79,6 +81,7 @@ contract UnionGroup is Group {
     }
 }
 
+
 /**
  * @title Group that comprises of all members belonging to all subgroups.
  */
@@ -98,6 +101,7 @@ contract IntersectionGroup is Group {
         return true;
     }
 }
+
 
 /**
  * @title Group that comprises of all members not belonging to a group.

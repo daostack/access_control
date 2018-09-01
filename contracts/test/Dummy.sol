@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+
 /**
  * @title A dummy contract used for testing.
  */
