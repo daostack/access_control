@@ -23,13 +23,22 @@ contract Group {
 
     /**
      * @dev Call a method on a contract in the name of the group.
-     * @param _to contract address to call.
-     * @param _selector function selector.
-     * @param _args any arguments to the function.
+     * @param _contract contract address to call.
+     * @param _data ABI encoded function call data.
      */
-    function forward(address _to, bytes4 _selector, bytes _args) public payable onlyMember {
+    function forward(address _contract, bytes _data) public payable onlyMember {
         // solium-disable-next-line security/no-low-level-calls
-        require(_to.call(_selector, _args), "Forwarding failed");
+        bool result = _contract.call(_data);
+        // solium-disable-next-line security/no-inline-assembly
+        assembly {
+            // Copy the returned data.
+            returndatacopy(0, 0, returndatasize)
+
+            switch result
+            // call returns 0 on error.
+            case 0 { revert(0, returndatasize) }
+            default { return(0, returndatasize) }
+        }
     }
 }
 

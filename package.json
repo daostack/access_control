@@ -50,6 +50,7 @@
   "dependencies": {},
   "devDependencies": {
     "@soldoc/soldoc": "^0.4.3",
+    "abi-decoder": "^1.2.0",
     "chai": "^4.1.2",
     "chai-almost": "^1.0.1",
     "chai-as-promised": "^7.1.1",
