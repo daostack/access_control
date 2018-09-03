@@ -37,6 +37,11 @@ contract("Groups", (accounts) => {
         await group.forward(dummy.address, calldata, {from: accounts[2]}).should.be.rejectedWith("revert");
     });
 
+    it("(FixedGroup) can accept of to 935 members", async () => {
+        const N = 935;
+        await FixedGroup.new(Array(N).fill(accounts[0])).should.be.fulfilled;
+    });
+
     it("(InverseGroup) should accept a group and only allow non-members to forward", async () => {
         let group = await FixedGroup.new([accounts[0],accounts[1]]);
         group = await InverseGroup.new(group.address);
@@ -80,6 +85,11 @@ contract("Groups", (accounts) => {
         await group.forward(dummy.address, calldata, {from: accounts[0]}).should.be.rejectedWith("revert");
     });
 
+    it("(UnionGroup) can accept of to 294 members", async () => {
+        const N = 294;
+        await UnionGroup.new(Array(N).fill(accounts[0])).should.be.fulfilled;
+    });
+
     it("(IntersectionGroup) should accept a list of group and only allow members of at all of them to forward", async () => {
         const g1 = await FixedGroup.new([accounts[3],accounts[1]]);
         const g2 = await FixedGroup.new([accounts[2],accounts[3]]);
@@ -97,5 +107,10 @@ contract("Groups", (accounts) => {
         await group.forward(dummy.address, calldata, {from: accounts[1]}).should.be.rejectedWith("revert");
         await group.forward(dummy.address, calldata, {from: accounts[2]}).should.be.rejectedWith("revert");
         await group.forward(dummy.address, calldata, {from: accounts[0]}).should.be.rejectedWith("revert");
+    });
+
+    it("(IntersectionGroup) can accept of to 294 members", async () => {
+        const N = 294;
+        await IntersectionGroup.new(Array(N).fill(accounts[0])).should.be.fulfilled;
     });
 });

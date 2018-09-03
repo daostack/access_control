@@ -49,6 +49,9 @@ contract Group {
 contract FixedGroup is Group {
     mapping(address => bool) members;
 
+    /**
+     * @notice Can use up to 935 members (tested with 8M block gas limit)
+     */
     constructor(address[] _members) public {
         for (uint i = 0; i < _members.length; i++) {
             members[_members[i]] = true;
@@ -67,6 +70,9 @@ contract FixedGroup is Group {
 contract UnionGroup is Group {
     Group[] subgroups;
 
+    /**
+     * @notice Can use up to 294 sub-groups (tested with 8M block gas limit)
+     */
     constructor(Group[] _subgroups) public {
         subgroups = _subgroups;
     }
@@ -88,6 +94,9 @@ contract UnionGroup is Group {
 contract IntersectionGroup is Group {
     Group[] subgroups;
 
+    /**
+     * @notice Can use up to 294 sub-groups (tested with 8M block gas limit)
+     */
     constructor(Group[] _subgroups) public {
         subgroups = _subgroups;
     }
