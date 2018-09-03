@@ -52,7 +52,7 @@ contract Permissioned is ERC165, ERCTBDStorage {
     function unlockable(bytes32 _id, address _owner) public view returns (bool) {
         Key memory key = keys[_id][_owner];
         // solium-disable-next-line security/no-block-members
-        return key.exists && isValidExpiration(key.expiration) && key.startTime <= now;
+        return key.exists && isValidExpiration(key.expiration) && key.start <= now;
     }
 
     /// @dev does the owner have a valid key for the lock id
@@ -63,24 +63,24 @@ contract Permissioned is ERC165, ERCTBDStorage {
         return (
             keys[_id][_owner].exists, 
             keys[_id][_owner].assignable, 
-            keys[_id][_owner].startTime, 
+            keys[_id][_owner].start, 
             keys[_id][_owner].expiration, 
             keys[_id][_owner].uses
         );
     }
 
-    /// @dev transfer partial or all capabilities from the sender to an account
+    /// @dev assign partial or all capabilities from the sender to an account
     /// @param _id lock id
     /// @param _to recipient
     /// @param _assignable can the recipient further assignKey capabilities to other accounts?
-    /// @param _startTime the key's start time (block timestamp)
+    /// @param _start the key's start time (block timestamp)
     /// @param _expiration the key's expiration time (block timestamp)
     /// @param _uses number of times this key can be used (in `unlock(..)`)
     function assignKey(
         bytes32 _id,
         address _to,
         bool _assignable,
-        uint80 _startTime,
+        uint80 _start,
         uint80 _expiration,
         uint80 _uses
     ) public
@@ -90,21 +90,23 @@ contract Permissioned is ERC165, ERCTBDStorage {
         require(key.assignable, "Key is not assignable");
         
         // solium-disable-next-line security/no-block-members
-        require(key.startTime <= now || _startTime >= key.startTime, "Cannot reduce key's future start time");
+        require(key.start <= now || _start >= key.start, "Cannot reduce key's future start time");
         require(key.expiration == 0 || (_expiration <= key.expiration && _expiration > 0), "Cannot extend key's expiration");
-        require(_expiration == 0 || _startTime < _expiration, "Start time must be strictly less than expiration");
+        require(_expiration == 0 || _start < _expiration, "Start time must be strictly less than expiration");
         require(isValidExpiration(_expiration), "Expiration must be in the future");
         require(key.uses == 0 || (_uses <= key.uses && _uses > 0), "Not enough uses avaiable");
         
         // solium-disable-next-line security/no-block-members
-        bool possesKey = unlockable(_id, _to) || keys[_id][_to].startTime > now;
+
+        Key memory destKey = keys[_id][_to];
+        bool possesKey = unlockable(_id, _to) || destKey.start > now;
         require(
             !possesKey || (
-                keys[_id][_to].assignable == _assignable && keys[_id][_to].expiration == _expiration && (
+                destKey.assignable == _assignable && destKey.expiration == _expiration && (
                     // both in the past or are exactly equal
                     // solium-disable-next-line security/no-block-members
-                    (keys[_id][_to].startTime <= now && _startTime <= now) ||
-                    keys[_id][_to].startTime == _startTime
+                    (destKey.start <= now && _start <= now) ||
+                    destKey.start == _start
                 )
             ),
             "Cannot merge into recepeint's key"
@@ -113,15 +115,15 @@ contract Permissioned is ERC165, ERCTBDStorage {
         subtractUses(_id,_uses);
 
         if (unlockable(_id, _to)) {
-            if (keys[_id][_to].uses != 0) {
+            if (destKey.uses != 0) {
                 if (_uses == 0) {
                     keys[_id][_to].uses = 0;
                 } else {
-                    keys[_id][_to].uses = keys[_id][_to].uses.add(_uses);
+                    keys[_id][_to].uses = destKey.uses.add(_uses);
                 }
             }
         } else {
-            keys[_id][_to] = Key(true, _assignable, _startTime, _expiration, _uses);
+            keys[_id][_to] = Key(true, _assignable, _start, _expiration, _uses);
         }
 
         emit AssignKey(
@@ -129,13 +131,13 @@ contract Permissioned is ERC165, ERCTBDStorage {
             msg.sender,
             _to,
             _assignable,
-            _startTime,
+            _start,
             _expiration,
             _uses
         );
     }
 
-    /// @dev transfer all capabilities from the sender to an account
+    /// @dev assign all capabilities from the sender to an account
     /// @param _id lock id
     /// @param _to recipient
     function assignFullKey(
@@ -148,7 +150,7 @@ contract Permissioned is ERC165, ERCTBDStorage {
             _id,
             _to,
             key.assignable,
-            key.startTime,
+            key.start,
             key.expiration,
             key.uses
         );
@@ -172,24 +174,24 @@ contract Permissioned is ERC165, ERCTBDStorage {
     /// @param _id lock id
     /// @param _to recipient
     /// @param _assignable can the recipient further assignKey his capabilities to other accounts?
-    /// @param _startTime the key's start time (block timestamp)
+    /// @param _start the key's start time (block timestamp)
     /// @param _expiration the key's expiration time (block timestamp)
     /// @param _uses number of times this key can be used (in `unlock(..)`)
     function grantKey(
         bytes32 _id,
         address _to,
         bool _assignable,
-        uint80 _startTime,
+        uint80 _start,
         uint80 _expiration,
         uint80 _uses
     ) internal
     {
-        require(_expiration == 0 || _startTime < _expiration, "Start time must be strictly less than expiration");
+        require(_expiration == 0 || _start < _expiration, "Start time must be strictly less than expiration");
         require(isValidExpiration(_expiration), "Expiration must be in the future");
 
         keys[_id][_to].exists = true;
         keys[_id][_to].assignable = _assignable;
-        keys[_id][_to].startTime = _startTime;
+        keys[_id][_to].start = _start;
         keys[_id][_to].expiration = _expiration;
         keys[_id][_to].uses = _uses;
 
@@ -198,7 +200,7 @@ contract Permissioned is ERC165, ERCTBDStorage {
             0,
             _to,
             _assignable,
-            _startTime,
+            _start,
             _expiration,
             _uses
         );

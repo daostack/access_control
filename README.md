@@ -22,12 +22,12 @@ Check out the [documentation](https://daostack.github.io/access_control/) for mo
 ## Concept
 
 The basic idea is that there are a set of "locks"/"topics" each with a set of "keys". A contract can protects one of it's methods with a lock (or more) such that anyone with the appropriate key can use it to access this method.
-Each key can have a start time, expiration time, # of uses. Accounts can also transfer some (or all) of their capabilities to other accounts if allowed. Initially the contract itself has a "master key" (infinite uses, no expiration, no start time limitation), and then it can pass some partial capabilities to the desired accounts.
+Each key can have a start time, expiration time, number of uses. Accounts can also transfer some (or all) of their capabilities to other accounts if allowed. Initially the contract itself has a "master key" (infinite uses, no expiration, no start time limitation), and then it can pass some partial capabilities to the desired accounts.
 
 Features:
 
 - Can define a number of uses & expiration date & start time on keys and if to enable the key to be transfrred.
-- Accounts can transfer partial (or full) abillites to other accounts (if allowed).
+- Accounts can assign partial (or full) abillites to other accounts (if allowed).
 - We can use advanced lock ids to lock a method even on specific parameters, enforce ordering, or other properties (see example).
 - Can define complex boolean predicates to protect methods.
 - No performance loss over hand-crafted mechanisms.

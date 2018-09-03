@@ -13,7 +13,7 @@ contract PermissionedMock is Permissioned {
         bytes32 _id,
         address _to,
         bool _assignable,
-        uint80 _startTime,
+        uint80 _start,
         uint80 _expiration,
         uint80 _uses
     ) public
@@ -22,7 +22,7 @@ contract PermissionedMock is Permissioned {
             _id,
             _to,
             _assignable,
-            _startTime,
+            _start,
             _expiration,
             _uses
         );

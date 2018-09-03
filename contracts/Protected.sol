@@ -16,7 +16,7 @@ contract Protected {
     struct Key {
         bool exists;
         bool assignable;
-        uint80 startTime; // zero = effective immediately
+        uint80 start; // zero = effective immediately
         uint80 expiration; // zero = no expiration
         uint80 uses; // zero = infinite uses
     }
@@ -29,7 +29,7 @@ contract Protected {
         address indexed _from, // zero = granted by contract
         address indexed _to,
         bool _assignable,
-        uint80 _startTime,
+        uint80 _start,
         uint80 _expiration,
         uint80 _uses
     );
@@ -45,7 +45,7 @@ contract Protected {
      */
     function unlockable(bytes32 _id, address _owner) public view returns (bool) {
         Key memory key = keys[_id][_owner];
-        return key.exists && isValidExpiration(key.expiration) && key.startTime <= now;
+        return key.exists && isValidExpiration(key.expiration) && key.start <= now;
     }
 
     /**
@@ -60,7 +60,7 @@ contract Protected {
         bytes32 _id,
         address _to,
         bool _assignable,
-        uint80 _startTime,
+        uint80 _start,
         uint80 _expiration,
         uint80 _uses
     ) public
@@ -68,19 +68,19 @@ contract Protected {
         Key memory key = keys[_id][msg.sender];
         require(key.exists && isValidExpiration(key.expiration), "Invalid key");
         require(key.assignable, "Key is not assignable");
-        require(key.startTime <= now || _startTime >= key.startTime, "Cannot reduce key's future start time");
+        require(key.start <= now || _start >= key.start, "Cannot reduce key's future start time");
         require(key.expiration == 0 || (_expiration <= key.expiration && _expiration > 0), "Cannot extend key's expiration");
-        require(_expiration == 0 || _startTime < _expiration, "Start time must be strictly less than expiration");
+        require(_expiration == 0 || _start < _expiration, "Start time must be strictly less than expiration");
         require(isValidExpiration(_expiration), "Expiration must be in the future");
         require(key.uses == 0 || (_uses <= key.uses && _uses > 0), "Not enough uses avaiable");
 
-        bool possesKey = unlockable(_id, _to) || keys[_id][_to].startTime > now;
+        bool possesKey = unlockable(_id, _to) || keys[_id][_to].start > now;
         require(
             !possesKey || (
                 keys[_id][_to].assignable == _assignable && keys[_id][_to].expiration == _expiration && (
                     // both in the past or are exactly equal
-                    (keys[_id][_to].startTime <= now && _startTime <= now) ||
-                    keys[_id][_to].startTime == _startTime
+                    (keys[_id][_to].start <= now && _start <= now) ||
+                    keys[_id][_to].start == _start
                 )
             ),
             "Cannot merge into recepeint's key"
@@ -97,7 +97,7 @@ contract Protected {
                 }
             }
         } else {
-            keys[_id][_to] = Key(true, _assignable, _startTime, _expiration, _uses);
+            keys[_id][_to] = Key(true, _assignable, _start, _expiration, _uses);
         }
 
         emit AssignKey(
@@ -105,7 +105,7 @@ contract Protected {
             msg.sender,
             _to,
             _assignable,
-            _startTime,
+            _start,
             _expiration,
             _uses
         );
@@ -126,7 +126,7 @@ contract Protected {
             _id,
             _to,
             key.assignable,
-            key.startTime,
+            key.start,
             key.expiration,
             key.uses
         );
@@ -170,17 +170,17 @@ contract Protected {
         bytes32 _id,
         address _to,
         bool _assignable,
-        uint80 _startTime,
+        uint80 _start,
         uint80 _expiration,
         uint80 _uses
     ) internal
     {
-        require(_expiration == 0 || _startTime < _expiration, "Start time must be strictly less than expiration");
+        require(_expiration == 0 || _start < _expiration, "Start time must be strictly less than expiration");
         require(isValidExpiration(_expiration), "Expiration must be in the future");
 
         keys[_id][_to].exists = true;
         keys[_id][_to].assignable = _assignable;
-        keys[_id][_to].startTime = _startTime;
+        keys[_id][_to].start = _start;
         keys[_id][_to].expiration = _expiration;
         keys[_id][_to].uses = _uses;
 
@@ -189,7 +189,7 @@ contract Protected {
             0,
             _to,
             _assignable,
-            _startTime,
+            _start,
             _expiration,
             _uses
         );

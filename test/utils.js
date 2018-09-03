@@ -6,7 +6,7 @@ function key(arr) {
   return {
     exists: arr[0],
     assignable: arr[1],
-    startTime: arr[2],
+    start: arr[2],
     expiration: arr[3],
     uses: arr[4]
   };
@@ -20,7 +20,7 @@ function empty(key) {
   return (
     !key.exists &&
     !key.assignable &&
-    key.startTime.isZero() &&
+    key.start.isZero() &&
     key.expiration.isZero() &&
     key.uses.isZero()
   );

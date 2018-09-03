@@ -11,23 +11,23 @@ interface ERCTBDInterface {
         address indexed _from, 
         address indexed _to, 
         bool _assignable, 
-        uint80 _startTime, 
+        uint80 _start, 
         uint80 _expiration, 
         uint80 _uses
     );
 
     event RevokeKey(bytes32 indexed _id, address indexed _owner);
 
-    /// @dev transfer partial or all capabilities from the sender to an account
+    /// @dev assign partial or all capabilities from the sender to an account
     /// @param _id lock id
     /// @param _to recipient
     /// @param _assignable can the recipient further assign capabilities to other accounts?
-    /// @param _startTime the key's start time (block number)
+    /// @param _start the key's start time (block number)
     /// @param _expiration the key's expiration time (block number)
     /// @param _uses number of times this key can be used (in `unlock(..)`)
-    function assignKey(bytes32 _id, address _to, bool _assignable, uint80 _startTime, uint80 _expiration, uint80 _uses) external;
+    function assignKey(bytes32 _id, address _to, bool _assignable, uint80 _start, uint80 _expiration, uint80 _uses) external;
 
-    /// @dev transfer all capabilities from the sender to an account
+    /// @dev assign all capabilities from the sender to an account
     /// @param _id lock id
     /// @param _to recipient
     function assignFullKey(bytes32 _id, address _to) external;
