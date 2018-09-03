@@ -17,7 +17,6 @@ contract Group {
      */
     modifier onlyMember() {
         require(isMember(msg.sender), "Not a member of this group");
-
         _;
     }
 
