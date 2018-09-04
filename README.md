@@ -10,9 +10,9 @@
 2. Use it in your smart contract
 
    ```javascript
-   import "@daostack/access_control/contracts/Protected.sol";
+   import "@daostack/access_control/contracts/Permissioned.sol";
 
-   contract Foo is Protected {
+   contract Foo is Permissioned {
        // Foo stuff...
    }
    ```
