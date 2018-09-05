@@ -10,9 +10,9 @@ contract ERCTBD is ERC165, ERCTBDInterface {
     struct Key {
         bool exists;
         bool assignable;
-        uint80 start;
-        uint80 expiration;
-        uint80 uses;
+        uint start;
+        uint expiration;
+        uint uses;
     }
 
     /// @dev Grant capabilities to account (overwrites existing key)
@@ -22,7 +22,14 @@ contract ERCTBD is ERC165, ERCTBDInterface {
     /// @param _start the key's start time (block timestamp)
     /// @param _expiration the key's expiration time (block timestamp)
     /// @param _uses number of times this key can be used (in `unlock(..)`)
-    function grantKey(bytes32 _id, address _to, bool _assignable, uint80 _start, uint80 _expiration, uint80 _uses) internal;
+    function grantKey(
+        bytes32 _id, 
+        address _to, 
+        bool _assignable, 
+        uint _start, 
+        uint _expiration, 
+        uint _uses
+        ) internal;
 
     /// @dev Grant full capabilities to account (assignable, no start time, no expiration, infinite uses)
     /// @param _id lock id
