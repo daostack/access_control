@@ -13,9 +13,9 @@ contract PermissionedMock is Permissioned {
         bytes32 _id,
         address _to,
         bool _assignable,
-        uint80 _start,
-        uint80 _expiration,
-        uint80 _uses
+        uint _start,
+        uint _expiration,
+        uint _uses
     ) public
     {
         return grantKey(

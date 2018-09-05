@@ -53,7 +53,7 @@ pragma solidity ^0.4.24;
 
 /// @title ERCTBDInterface - Access Control Interface
 /// @dev basic inteface for access control mechanism
-/// Note: the ERC-165 identifier for this interface is 0x0b74c80f.
+/// Note: the ERC-165 identifier for this interface is 0x33f9cb64.
 interface ERCTBDInterface {
 
     event AssignKey(
@@ -61,9 +61,9 @@ interface ERCTBDInterface {
         address indexed _from,
         address indexed _to,
         bool _assignable,
-        uint80 _start,
-        uint80 _expiration,
-        uint80 _uses
+        uint _start,
+        uint _expiration,
+        uint _uses
     );
 
     event RevokeKey(bytes32 indexed _id, address indexed _owner);
@@ -75,7 +75,14 @@ interface ERCTBDInterface {
     /// @param _start the key's start time (block number)
     /// @param _expiration the key's expiration time (block number)
     /// @param _uses number of times this key can be used (in `unlock(..)`)
-    function assignKey(bytes32 _id, address _to, bool _assignable, uint80 _start, uint80 _expiration, uint80 _uses) external;
+    function assignKey(
+        bytes32 _id,
+        address _to,
+        bool _assignable,
+        uint _start,
+        uint _expiration,
+        uint _uses
+        ) external;
 
     /// @dev assign all capabilities from the sender to an account
     /// @param _id lock id
@@ -95,7 +102,7 @@ interface ERCTBDInterface {
     /// @param _id lock id
     /// @param _owner owner address
     /// @return the properties of the requested key as a tuple
-    function getKey(bytes32 _id, address _owner) external view returns (bool, bool, uint80, uint80, uint80);
+    function getKey(bytes32 _id, address _owner) external view returns (bool, bool, uint, uint, uint);
 }
 
 /// @title ERCTBD - Access Control Interface
@@ -104,9 +111,9 @@ contract ERCTBD is ERC165, ERCTBDInterface {
     struct Key {
         bool exists;
         bool assignable;
-        uint80 start;
-        uint80 expiration;
-        uint80 uses;
+        uint start;
+        uint expiration;
+        uint uses;
     }
 
     /// @dev Grant capabilities to account (overwrites existing key)
@@ -116,7 +123,14 @@ contract ERCTBD is ERC165, ERCTBDInterface {
     /// @param _start the key's start time (block timestamp)
     /// @param _expiration the key's expiration time (block timestamp)
     /// @param _uses number of times this key can be used (in `unlock(..)`)
-    function grantKey(bytes32 _id, address _to, bool _assignable, uint80 _start, uint80 _expiration, uint80 _uses) internal;
+    function grantKey(
+        bytes32 _id,
+        address _to,
+        bool _assignable,
+        uint _start,
+        uint _expiration,
+        uint _uses
+        ) internal;
 
     /// @dev Grant full capabilities to account (assignable, no start time, no expiration, infinite uses)
     /// @param _id lock id
