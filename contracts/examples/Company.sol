@@ -1,8 +1,8 @@
 pragma solidity ^0.4.24;
 
-import "../Protected.sol";
+import "../Permissioned.sol";
 
-contract Company is Protected {
+contract Company is Permissioned {
 
     struct Employee {
         uint salary;
@@ -12,7 +12,7 @@ contract Company is Protected {
     mapping(address => Employee) employees;
     address COO;
 
-    constructor(address _HRCompany, address _COO) {
+    constructor(address _COO) public {
         // The sender has unlimited access to `manageHRCompany`
         grantFullKey("manageHRCompany", msg.sender);
         COO = _COO;
@@ -20,7 +20,7 @@ contract Company is Protected {
 
     function hireHRCompany(address _HRCompany, uint80 n_employees)
         public
-        guarantee(unlock("manageHRCompany")) // the sender can manage HR comapines
+        guarentee(unlock("manageHRCompany")) // the sender can manage HR comapines
     {
         // Allow the HRCompany to register up to `n_employees`
         grantKey(
@@ -35,7 +35,7 @@ contract Company is Protected {
 
     function fireHRCompany(address _HRCompany)
         public
-        guarantee(unlock("manageHRCompany")) // the sender can manage HR comapines
+        guarentee(unlock("manageHRCompany")) // the sender can manage HR comapines
     {
         // Revoke access to `registerEmployee`
         revokeOwnerKey("registerEmployee", _HRCompany);
@@ -43,7 +43,7 @@ contract Company is Protected {
 
     function registerEmployee(address _employee, uint _salary)
         public
-        guarantee(unlock("registerEmployee"))
+        guarentee(unlock("registerEmployee"))
     {
         require(employees[_employee].salary == 0, "Employee already registered");
         require(_salary > 0, "Salary must be greater than zero");
@@ -52,7 +52,7 @@ contract Company is Protected {
 
         // Next payday for this employee is at least a month from now
         grantKey(
-            lockId("payout", _employee),
+            lockId(bytes32("payout"),bytes32(_employee)),
             COO,
             true,          // assignable to other accounts
             now + 30 days, // can be called in at least a month from now
@@ -64,7 +64,7 @@ contract Company is Protected {
     function payout(address _employee)
         public
         // The sender can payout to this employee
-        guarantee(unlock(lockId("payout", _employee)))
+        guarentee(unlock(lockId(bytes32("payout"),bytes32(_employee))))
     {
         uint salary = employees[_employee].salary;
         require(salary > 0, "Employee is not registered");
@@ -73,7 +73,7 @@ contract Company is Protected {
 
         // Next payday is at least a month from now
         grantKey(
-            lockId("payout", _employee),
+            lockId(bytes32("payout"),bytes32(_employee)),
             COO,
             true,          // assignable to other accounts
             now + 30 days, // can be called in at least a month from now
