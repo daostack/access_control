@@ -1,14 +1,14 @@
 pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/introspection/ERC165.sol";
-import "./SafeMath80.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./ERCTBDStorage.sol";
 
 
 /// @title Permissioned
 /// @dev base class that gives contracts a sophisticated access control mechanism
 contract Permissioned is ERC165, ERCTBDStorage {
-    using SafeMath80 for uint80;
+    using SafeMath for uint;
     
     // Random placeholder for irrelevent params in lock id. e.g. `unlock(keccak256(abi.encodePacked("method", param1, ANYTHING, param2)))`
     uint256 internal constant ANYTHING = uint256(keccak256("ANYTHING"));
@@ -35,13 +35,27 @@ contract Permissioned is ERC165, ERCTBDStorage {
             this.assignFullKey.selector ^ 
             this.revokeKey.selector ^ 
             this.unlockable.selector ^
-            this.getKey.selector; // ERCTBD 0x0b74c80f
+            this.getKey.selector; // ERCTBD 0x33f9cb64
+    }
+
+    /// @dev does the owner have a valid key for the lock id
+    /// @param _id lock id
+    /// @param _owner owner address
+    /// @return the properties of the requested key as a tuple
+    function getKey(bytes32 _id, address _owner) external view returns (bool, bool, uint, uint, uint) {
+        return (
+            keys[_id][_owner].exists, 
+            keys[_id][_owner].assignable, 
+            keys[_id][_owner].start, 
+            keys[_id][_owner].expiration, 
+            keys[_id][_owner].uses
+        );
     }
 
     /// @dev is the current block timestamp less than `_expiration`
     /// @param _expiration expiration block timestamp
     /// @return is the expiration valid
-    function isValidExpiration(uint80 _expiration) public view returns (bool valid) {
+    function isValidExpiration(uint _expiration) public view returns (bool valid) {
         // solium-disable-next-line security/no-block-members
         return _expiration == 0 || _expiration >= now;
     }
@@ -55,20 +69,6 @@ contract Permissioned is ERC165, ERCTBDStorage {
         return key.exists && isValidExpiration(key.expiration) && key.start <= now;
     }
 
-    /// @dev does the owner have a valid key for the lock id
-    /// @param _id lock id
-    /// @param _owner owner address
-    /// @return the properties of the requested key as a tuple
-    function getKey(bytes32 _id, address _owner) external view returns (bool, bool, uint80, uint80, uint80) {
-        return (
-            keys[_id][_owner].exists, 
-            keys[_id][_owner].assignable, 
-            keys[_id][_owner].start, 
-            keys[_id][_owner].expiration, 
-            keys[_id][_owner].uses
-        );
-    }
-
     /// @dev assign partial or all capabilities from the sender to an account
     /// @param _id lock id
     /// @param _to recipient
@@ -80,9 +80,9 @@ contract Permissioned is ERC165, ERCTBDStorage {
         bytes32 _id,
         address _to,
         bool _assignable,
-        uint80 _start,
-        uint80 _expiration,
-        uint80 _uses
+        uint _start,
+        uint _expiration,
+        uint _uses
     ) public
     {
         Key memory key = keys[_id][msg.sender];
@@ -181,9 +181,9 @@ contract Permissioned is ERC165, ERCTBDStorage {
         bytes32 _id,
         address _to,
         bool _assignable,
-        uint80 _start,
-        uint80 _expiration,
-        uint80 _uses
+        uint _start,
+        uint _expiration,
+        uint _uses
     ) internal
     {
         require(_expiration == 0 || _start < _expiration, "Start time must be strictly less than expiration");
@@ -237,7 +237,7 @@ contract Permissioned is ERC165, ERCTBDStorage {
     /// @dev subtract uses from a key, delete the key if it has no uses left.
     /// @param _id lock id
     /// @param _uses uses count to subtract from the key
-    function subtractUses(bytes32 _id, uint80 _uses) private {
+    function subtractUses(bytes32 _id, uint _uses) private {
         Key memory key = keys[_id][msg.sender];
         if (key.uses > 0) {
             if (key.uses == _uses) {
