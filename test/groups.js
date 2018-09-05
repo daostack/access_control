@@ -44,7 +44,7 @@ contract("Groups", (accounts) => {
 
     it("(FixedGroup) can't accept 936 members", async () => {
         const N = 936;
-        await FixedGroup.new(Array(N).fill(accounts[0])).should.be.rejectedWith('gas');
+        await FixedGroup.new(Array(N).fill(accounts[0])).should.be.rejectedWith("gas");
     });
 
     it("(InverseGroup) should accept a group and only allow non-members to forward", async () => {
@@ -97,7 +97,7 @@ contract("Groups", (accounts) => {
 
     it("(UnionGroup) can't accept 295 members", async () => {
         const N = 295;
-        await UnionGroup.new(Array(N).fill(accounts[0])).should.be.rejectedWith('gas');
+        await UnionGroup.new(Array(N).fill(accounts[0])).should.be.rejectedWith("gas");
     });
 
     it("(IntersectionGroup) should accept a list of group and only allow members of at all of them to forward", async () => {
@@ -126,6 +126,6 @@ contract("Groups", (accounts) => {
 
     it("(IntersectionGroup) can't accept 295 members", async () => {
         const N = 295;
-        await IntersectionGroup.new(Array(N).fill(accounts[0])).should.be.rejectedWith('gas');
+        await IntersectionGroup.new(Array(N).fill(accounts[0])).should.be.rejectedWith("gas");
     });
 });
