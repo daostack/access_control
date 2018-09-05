@@ -14,7 +14,7 @@
 
 Params:
 
-1. **_COO** *of type `address`*
+1. **_coo** *of type `address`*
 
 ## Events
 ### AssignKey(bytes32,address,address,bool,uint256,uint256,uint256)
@@ -129,7 +129,7 @@ Returns:
 
 Params:
 
-1. **_HRCompany** *of type `address`*
+1. **_hrCompany** *of type `address`*
 
 
 --- 
@@ -214,8 +214,8 @@ Params:
 
 Params:
 
-1. **_HRCompany** *of type `address`*
-2. **n_employees** *of type `uint80`*
+1. **_hrCompany** *of type `address`*
+2. **nEmployees** *of type `uint80`*
 
 
 --- 

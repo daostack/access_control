@@ -2,6 +2,7 @@ pragma solidity ^0.4.24;
 
 import "../Permissioned.sol";
 
+
 contract Company is Permissioned {
 
     struct Employee {
@@ -10,35 +11,35 @@ contract Company is Permissioned {
     }
 
     mapping(address => Employee) employees;
-    address COO;
+    address coo;
 
-    constructor(address _COO) public {
+    constructor(address _coo) public {
         // The sender has unlimited access to `manageHRCompany`
         grantFullKey("manageHRCompany", msg.sender);
-        COO = _COO;
+        coo = _coo;
     }
 
-    function hireHRCompany(address _HRCompany, uint80 n_employees)
+    function hireHRCompany(address _hrCompany, uint80 nEmployees)
         public
         guarentee(unlock("manageHRCompany")) // the sender can manage HR comapines
     {
-        // Allow the HRCompany to register up to `n_employees`
+        // Allow the HRCompany to register up to `nEmployees`
         grantKey(
             "registerEmployee",
-            _HRCompany,
+            _hrCompany,
             false,      // not assignable to other accounts
             0,          // effective immediately
             0,          // no expiration
-            n_employees // can be used up to `n_employees` times
+            nEmployees // can be used up to `nEmployees` times
         );
     }
 
-    function fireHRCompany(address _HRCompany)
+    function fireHRCompany(address _hrCompany)
         public
         guarentee(unlock("manageHRCompany")) // the sender can manage HR comapines
     {
         // Revoke access to `registerEmployee`
-        revokeOwnerKey("registerEmployee", _HRCompany);
+        revokeOwnerKey("registerEmployee", _hrCompany);
     }
 
     function registerEmployee(address _employee, uint _salary)
@@ -53,7 +54,7 @@ contract Company is Permissioned {
         // Next payday for this employee is at least a month from now
         grantKey(
             lockId(bytes32("payout"),bytes32(_employee)),
-            COO,
+            coo,
             true,          // assignable to other accounts
             now + 30 days, // can be called in at least a month from now
             0,             // no expiration
@@ -74,7 +75,7 @@ contract Company is Permissioned {
         // Next payday is at least a month from now
         grantKey(
             lockId(bytes32("payout"),bytes32(_employee)),
-            COO,
+            coo,
             true,          // assignable to other accounts
             now + 30 days, // can be called in at least a month from now
             0,             // no expiration

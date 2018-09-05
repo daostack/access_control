@@ -234,20 +234,6 @@ contract Permissioned is ERC165, ERCTBDStorage {
         return false;
     }
 
-    /// @dev subtract uses from a key, delete the key if it has no uses left.
-    /// @param _id lock id
-    /// @param _uses uses count to subtract from the key
-    function subtractUses(bytes32 _id, uint _uses) private {
-        Key memory key = keys[_id][msg.sender];
-        if (key.uses > 0) {
-            if (key.uses == _uses) {
-                delete keys[_id][msg.sender];
-            } else {
-                keys[_id][msg.sender].uses = keys[_id][msg.sender].uses.sub(_uses);
-            }
-        }
-    }
-
     function lockId(bytes32 _arg0, bytes32 _arg1) internal pure returns(bytes32) {
         return keccak256(abi.encodePacked(_arg0, _arg1));
     }
@@ -264,4 +250,17 @@ contract Permissioned is ERC165, ERCTBDStorage {
         return keccak256(abi.encodePacked(_arg0, _arg1, _arg2, _arg3, _arg4));
     }
 
+    /// @dev subtract uses from a key, delete the key if it has no uses left.
+    /// @param _id lock id
+    /// @param _uses uses count to subtract from the key
+    function subtractUses(bytes32 _id, uint _uses) private {
+        Key memory key = keys[_id][msg.sender];
+        if (key.uses > 0) {
+            if (key.uses == _uses) {
+                delete keys[_id][msg.sender];
+            } else {
+                keys[_id][msg.sender].uses = keys[_id][msg.sender].uses.sub(_uses);
+            }
+        }
+    }
 }
