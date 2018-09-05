@@ -51,4 +51,4 @@ Available Commands:
 - `npm run lint`
 - `npm run test`
 - `npm run build`
-- `npm run docs<update|build|deploy|preview>`
+- `npm run docs:<update|build|deploy|preview>`
