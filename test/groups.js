@@ -37,9 +37,14 @@ contract("Groups", (accounts) => {
         await group.forward(dummy.address, calldata, {from: accounts[2]}).should.be.rejectedWith("revert");
     });
 
-    it("(FixedGroup) can accept of to 935 members", async () => {
+    it("(FixedGroup) can accept up to 935 members", async () => {
         const N = 935;
         await FixedGroup.new(Array(N).fill(accounts[0])).should.be.fulfilled;
+    });
+
+    it("(FixedGroup) can't accept 936 members", async () => {
+        const N = 936;
+        await FixedGroup.new(Array(N).fill(accounts[0])).should.be.rejectedWith('gas');
     });
 
     it("(InverseGroup) should accept a group and only allow non-members to forward", async () => {
@@ -85,9 +90,14 @@ contract("Groups", (accounts) => {
         await group.forward(dummy.address, calldata, {from: accounts[0]}).should.be.rejectedWith("revert");
     });
 
-    it("(UnionGroup) can accept of to 294 members", async () => {
+    it("(UnionGroup) can accept up to 294 members", async () => {
         const N = 294;
         await UnionGroup.new(Array(N).fill(accounts[0])).should.be.fulfilled;
+    });
+
+    it("(UnionGroup) can't accept 295 members", async () => {
+        const N = 295;
+        await UnionGroup.new(Array(N).fill(accounts[0])).should.be.rejectedWith('gas');
     });
 
     it("(IntersectionGroup) should accept a list of group and only allow members of at all of them to forward", async () => {
@@ -109,8 +119,13 @@ contract("Groups", (accounts) => {
         await group.forward(dummy.address, calldata, {from: accounts[0]}).should.be.rejectedWith("revert");
     });
 
-    it("(IntersectionGroup) can accept of to 294 members", async () => {
+    it("(IntersectionGroup) can accept up to 294 members", async () => {
         const N = 294;
         await IntersectionGroup.new(Array(N).fill(accounts[0])).should.be.fulfilled;
+    });
+
+    it("(IntersectionGroup) can't accept 295 members", async () => {
+        const N = 295;
+        await IntersectionGroup.new(Array(N).fill(accounts[0])).should.be.rejectedWith('gas');
     });
 });
