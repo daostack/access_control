@@ -9,7 +9,7 @@ import "./ERCTBDStorage.sol";
 /// @dev base class that gives contracts a sophisticated access control mechanism
 contract Permissioned is ERC165, ERCTBDStorage {
     using SafeMath for uint;
-    
+
     // Random placeholder for irrelevent params in lock id. e.g. `unlock(keccak256(abi.encodePacked("method", param1, ANYTHING, param2)))`
     uint256 internal constant ANYTHING = uint256(keccak256("ANYTHING"));
 
@@ -30,10 +30,10 @@ contract Permissioned is ERC165, ERCTBDStorage {
         return
             interfaceID == this.supportsInterface.selector || // ERC165 0x01ffc9a7
             // solium-disable-next-line operator-whitespace
-            interfaceID == 
-            this.assignKey.selector ^ 
-            this.assignFullKey.selector ^ 
-            this.revokeKey.selector ^ 
+            interfaceID ==
+            this.assignKey.selector ^
+            this.assignFullKey.selector ^
+            this.revokeKey.selector ^
             this.unlockable.selector ^
             this.getKey.selector; // ERCTBD 0x33f9cb64
     }
@@ -44,10 +44,10 @@ contract Permissioned is ERC165, ERCTBDStorage {
     /// @return the properties of the requested key as a tuple
     function getKey(bytes32 _id, address _owner) external view returns (bool, bool, uint, uint, uint) {
         return (
-            keys[_id][_owner].exists, 
-            keys[_id][_owner].assignable, 
-            keys[_id][_owner].start, 
-            keys[_id][_owner].expiration, 
+            keys[_id][_owner].exists,
+            keys[_id][_owner].assignable,
+            keys[_id][_owner].start,
+            keys[_id][_owner].expiration,
             keys[_id][_owner].uses
         );
     }
@@ -88,14 +88,14 @@ contract Permissioned is ERC165, ERCTBDStorage {
         Key memory key = keys[_id][msg.sender];
         require(key.exists && isValidExpiration(key.expiration), "Invalid key");
         require(key.assignable, "Key is not assignable");
-        
+
         // solium-disable-next-line security/no-block-members
         require(key.start <= now || _start >= key.start, "Cannot reduce key's future start time");
         require(key.expiration == 0 || (_expiration <= key.expiration && _expiration > 0), "Cannot extend key's expiration");
         require(_expiration == 0 || _start < _expiration, "Start time must be strictly less than expiration");
         require(isValidExpiration(_expiration), "Expiration must be in the future");
         require(key.uses == 0 || (_uses <= key.uses && _uses > 0), "Not enough uses avaiable");
-        
+
         // solium-disable-next-line security/no-block-members
 
         Key memory destKey = keys[_id][_to];
@@ -232,6 +232,24 @@ contract Permissioned is ERC165, ERCTBDStorage {
             return true;
         }
         return false;
+    }
+
+    /// @dev convenience method for generating lock ids.
+    /// @notice usage: grantFullKey(lockId(bytes32("foo"), bytes32(5)))
+    function lockId(bytes32 _arg0, bytes32 _arg1) internal pure returns(bytes32) {
+        return keccak256(abi.encodePacked(_arg0, _arg1));
+    }
+
+    function lockId(bytes32 _arg0, bytes32 _arg1, bytes32 _arg2) internal pure returns(bytes32) {
+        return keccak256(abi.encodePacked(_arg0, _arg1, _arg2));
+    }
+
+    function lockId(bytes32 _arg0, bytes32 _arg1, bytes32 _arg2, bytes32 _arg3) internal pure returns(bytes32) {
+        return keccak256(abi.encodePacked(_arg0, _arg1, _arg2, _arg3));
+    }
+
+    function lockId(bytes32 _arg0, bytes32 _arg1, bytes32 _arg2, bytes32 _arg3, bytes32 _arg4) internal pure returns(bytes32) {
+        return keccak256(abi.encodePacked(_arg0, _arg1, _arg2, _arg3, _arg4));
     }
 
     /// @dev subtract uses from a key, delete the key if it has no uses left.
