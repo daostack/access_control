@@ -234,6 +234,8 @@ contract Permissioned is ERC165, ERCTBDStorage {
         return false;
     }
 
+    /// @dev convenience method for generating lock ids.
+    /// @notice usage: grantFullKey(lockId(bytes32("foo"), bytes32(5)))
     function lockId(bytes32 _arg0, bytes32 _arg1) internal pure returns(bytes32) {
         return keccak256(abi.encodePacked(_arg0, _arg1));
     }
