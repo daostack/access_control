@@ -1,12 +1,12 @@
 pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/introspection/ERC165.sol";
-import "./ERCTBDInterface.sol";
+import "./ERC1480Interface.sol";
 
 
-/// @title ERCTBD - Access Control Interface
+/// @title ERC1480 - Access Control Interface
 /// @dev contract for access control mechanism
-contract ERCTBD is ERC165, ERCTBDInterface {
+contract ERC1480 is ERC165, ERC1480Interface {
     struct Key {
         bool exists;
         bool assignable;

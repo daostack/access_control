@@ -1,10 +1,10 @@
 pragma solidity ^0.4.24;
 
 
-/// @title ERCTBDInterface - Access Control Interface
+/// @title ERC1480Interface - Access Control Interface
 /// @dev basic inteface for access control mechanism
 /// Note: the ERC-165 identifier for this interface is 0x33f9cb64.
-interface ERCTBDInterface {
+interface ERC1480Interface {
 
     event AssignKey(
         bytes32 indexed _id, 
