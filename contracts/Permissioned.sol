@@ -2,12 +2,12 @@ pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/introspection/ERC165.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "./ERCTBDStorage.sol";
+import "./ERC1480Storage.sol";
 
 
 /// @title Permissioned
 /// @dev base class that gives contracts a sophisticated access control mechanism
-contract Permissioned is ERC165, ERCTBDStorage {
+contract Permissioned is ERC165, ERC1480Storage {
     using SafeMath for uint;
 
     // Random placeholder for irrelevent params in lock id. e.g. `unlock(keccak256(abi.encodePacked("method", param1, ANYTHING, param2)))`
@@ -35,7 +35,7 @@ contract Permissioned is ERC165, ERCTBDStorage {
             this.assignFullKey.selector ^
             this.revokeKey.selector ^
             this.unlockable.selector ^
-            this.getKey.selector; // ERCTBD 0x33f9cb64
+            this.getKey.selector; // ERC1480 0x33f9cb64
     }
 
     /// @dev does the owner have a valid key for the lock id
