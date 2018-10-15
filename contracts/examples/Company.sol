@@ -53,7 +53,7 @@ contract Company is Permissioned {
 
         // Next payday for this employee is at least a month from now
         grantKey(
-            lockId(bytes32("payout"),bytes32(_employee)),
+            keccak256("payout",_employee),
             coo,
             true,          // assignable to other accounts
             now + 30 days, // can be called in at least a month from now
@@ -65,7 +65,7 @@ contract Company is Permissioned {
     function payout(address _employee)
         public
         // The sender can payout to this employee
-        guarentee(unlock(lockId(bytes32("payout"),bytes32(_employee))))
+        guarentee(unlock(keccak256("payout",_employee)))
     {
         uint salary = employees[_employee].salary;
         require(salary > 0, "Employee is not registered");
@@ -74,7 +74,7 @@ contract Company is Permissioned {
 
         // Next payday is at least a month from now
         grantKey(
-            lockId(bytes32("payout"),bytes32(_employee)),
+            keccak256("payout",_employee),
             coo,
             true,          // assignable to other accounts
             now + 30 days, // can be called in at least a month from now

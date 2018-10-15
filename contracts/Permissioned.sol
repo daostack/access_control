@@ -10,9 +10,6 @@ import "./ERC1480Storage.sol";
 contract Permissioned is ERC165, ERC1480Storage {
     using SafeMath for uint;
 
-    // Random placeholder for irrelevent params in lock id. e.g. `unlock(keccak256(abi.encodePacked("method", param1, ANYTHING, param2)))`
-    uint256 internal constant ANYTHING = uint256(keccak256("ANYTHING"));
-
     /// @dev A convenience modifier that guarentees a condition to be true. eg. `guarentee(unlock('Admin') || unlock('Worker'))`
     /// @param _condition the condition to be met
     modifier guarentee(bool _condition) {
@@ -232,24 +229,6 @@ contract Permissioned is ERC165, ERC1480Storage {
             return true;
         }
         return false;
-    }
-
-    /// @dev convenience method for generating lock ids.
-    /// @notice usage: grantFullKey(lockId(bytes32("foo"), bytes32(5)))
-    function lockId(bytes32 _arg0, bytes32 _arg1) internal pure returns(bytes32) {
-        return keccak256(abi.encodePacked(_arg0, _arg1));
-    }
-
-    function lockId(bytes32 _arg0, bytes32 _arg1, bytes32 _arg2) internal pure returns(bytes32) {
-        return keccak256(abi.encodePacked(_arg0, _arg1, _arg2));
-    }
-
-    function lockId(bytes32 _arg0, bytes32 _arg1, bytes32 _arg2, bytes32 _arg3) internal pure returns(bytes32) {
-        return keccak256(abi.encodePacked(_arg0, _arg1, _arg2, _arg3));
-    }
-
-    function lockId(bytes32 _arg0, bytes32 _arg1, bytes32 _arg2, bytes32 _arg3, bytes32 _arg4) internal pure returns(bytes32) {
-        return keccak256(abi.encodePacked(_arg0, _arg1, _arg2, _arg3, _arg4));
     }
 
     /// @dev subtract uses from a key, delete the key if it has no uses left.
