@@ -38,7 +38,7 @@
     
     
       
-        <title>Migrations - DAOstack Access Control Docs</title>
+        <title>Permissioned - DAOstack Access Control Docs</title>
       
     
     
@@ -100,7 +100,7 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
     
-      <a href="#migrations" tabindex="1" class="md-skip">
+      <a href="#permissioned" tabindex="1" class="md-skip">
         Skip to content
       </a>
     
@@ -126,7 +126,7 @@
                 DAOstack Access Control Docs
               </span>
               <span class="md-header-nav__topic">
-                Migrations
+                Permissioned
               </span>
             
           
@@ -270,9 +270,29 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#constructor" title="Constructor" class="md-nav__link">
-    Constructor
+  <a href="#events" title="Events" class="md-nav__link">
+    Events
   </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#assignkeybytes32addressaddressbooluint256uint256uint256" title="AssignKey(bytes32,address,address,bool,uint256,uint256,uint256)" class="md-nav__link">
+    AssignKey(bytes32,address,address,bool,uint256,uint256,uint256)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#revokekeybytes32address" title="RevokeKey(bytes32,address)" class="md-nav__link">
+    RevokeKey(bytes32,address)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -285,29 +305,57 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#upgradeaddress" title="upgrade(address)" class="md-nav__link">
-    upgrade(address)
+  <a href="#supportsinterfacebytes4" title="supportsInterface(bytes4)" class="md-nav__link">
+    supportsInterface(bytes4)
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#owner" title="owner()" class="md-nav__link">
-    owner()
+  <a href="#assignfullkeybytes32address" title="assignFullKey(bytes32,address)" class="md-nav__link">
+    assignFullKey(bytes32,address)
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#lastcompletedmigration" title="lastCompletedMigration()" class="md-nav__link">
-    lastCompletedMigration()
+  <a href="#keysbytes32address" title="keys(bytes32,address)" class="md-nav__link">
+    keys(bytes32,address)
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#setcompleteduint256" title="setCompleted(uint256)" class="md-nav__link">
-    setCompleted(uint256)
+  <a href="#isvalidexpirationuint256" title="isValidExpiration(uint256)" class="md-nav__link">
+    isValidExpiration(uint256)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#revokekeybytes32" title="revokeKey(bytes32)" class="md-nav__link">
+    revokeKey(bytes32)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unlockablebytes32address" title="unlockable(bytes32,address)" class="md-nav__link">
+    unlockable(bytes32,address)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getkeybytes32address" title="getKey(bytes32,address)" class="md-nav__link">
+    getKey(bytes32,address)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#assignkeybytes32addressbooluint256uint256uint256" title="assignKey(bytes32,address,bool,uint256,uint256,uint256)" class="md-nav__link">
+    assignKey(bytes32,address,bool,uint256,uint256,uint256)
   </a>
   
 </li>
@@ -333,46 +381,243 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/daostack/access_control/edit/master/docs/generated_docs/Migrations.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                  <a href="https://github.com/daostack/access_control/edit/master/docs/generated_docs/Permissioned.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                <h1 id="migrations">Migrations<a class="headerlink" href="#migrations" title="Permanent link">&para;</a></h1>
-<p><a href="git+https://github.com/daostack/access_control/tree/master/contracts/Migrations.sol">see the source</a></p>
-<p><strong>Execution cost</strong>: less than 20451 gas</p>
-<p><strong>Deployment cost</strong>: less than 114400 gas</p>
-<p><strong>Combined cost</strong>: less than 134851 gas</p>
-<h2 id="constructor">Constructor<a class="headerlink" href="#constructor" title="Permanent link">&para;</a></h2>
-<h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
-<h3 id="upgradeaddress">upgrade(address)<a class="headerlink" href="#upgradeaddress" title="Permanent link">&para;</a></h3>
+                <h1 id="permissioned">Permissioned<a class="headerlink" href="#permissioned" title="Permanent link">&para;</a></h1>
+<p><a href="git+https://github.com/daostack/access_control/tree/master/contracts/Permissioned.sol">see the source</a></p>
+<blockquote>
+<p>Permissioned</p>
+</blockquote>
+<p><strong>Execution cost</strong>: less than 689 gas</p>
+<p><strong>Deployment cost</strong>: less than 659000 gas</p>
+<p><strong>Combined cost</strong>: less than 659689 gas</p>
+<h2 id="events">Events<a class="headerlink" href="#events" title="Permanent link">&para;</a></h2>
+<h3 id="assignkeybytes32addressaddressbooluint256uint256uint256">AssignKey(bytes32,address,address,bool,uint256,uint256,uint256)<a class="headerlink" href="#assignkeybytes32addressaddressbooluint256uint256uint256" title="Permanent link">&para;</a></h3>
 <p><strong>Execution cost</strong>: No bound available</p>
 <p>Params:</p>
 <ol>
-<li><strong>newAddress</strong> <em>of type <code>address</code></em></li>
+<li><strong>_id</strong> <em>of type <code>bytes32</code></em></li>
+<li><strong>_from</strong> <em>of type <code>address</code></em></li>
+<li><strong>_to</strong> <em>of type <code>address</code></em></li>
+<li><strong>_assignable</strong> <em>of type <code>bool</code></em></li>
+<li><strong>_start</strong> <em>of type <code>uint256</code></em></li>
+<li><strong>_expiration</strong> <em>of type <code>uint256</code></em></li>
+<li><strong>_uses</strong> <em>of type <code>uint256</code></em></li>
 </ol>
 <hr />
-<h3 id="owner">owner()<a class="headerlink" href="#owner" title="Permanent link">&para;</a></h3>
-<p><strong>Execution cost</strong>: less than 421 gas</p>
-<p><strong>Attributes</strong>: constant</p>
-<p>Returns:</p>
-<ol>
-<li><strong>output_0</strong> <em>of type <code>address</code></em></li>
-</ol>
-<hr />
-<h3 id="lastcompletedmigration">lastCompletedMigration()<a class="headerlink" href="#lastcompletedmigration" title="Permanent link">&para;</a></h3>
-<p><strong>Execution cost</strong>: less than 428 gas</p>
-<p><strong>Attributes</strong>: constant</p>
-<p>Returns:</p>
-<ol>
-<li><strong>output_0</strong> <em>of type <code>uint256</code></em></li>
-</ol>
-<hr />
-<h3 id="setcompleteduint256">setCompleted(uint256)<a class="headerlink" href="#setcompleteduint256" title="Permanent link">&para;</a></h3>
-<p><strong>Execution cost</strong>: less than 20444 gas</p>
+<h3 id="revokekeybytes32address">RevokeKey(bytes32,address)<a class="headerlink" href="#revokekeybytes32address" title="Permanent link">&para;</a></h3>
+<p><strong>Execution cost</strong>: No bound available</p>
 <p>Params:</p>
 <ol>
-<li><strong>completed</strong> <em>of type <code>uint256</code></em></li>
+<li><strong>_id</strong> <em>of type <code>bytes32</code></em></li>
+<li><strong>_owner</strong> <em>of type <code>address</code></em></li>
 </ol>
-<p><a href="#migrations">Back to the top ↑</a></p>
+<h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
+<h3 id="supportsinterfacebytes4">supportsInterface(bytes4)<a class="headerlink" href="#supportsinterfacebytes4" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>Query if a contract implements an interface</p>
+<p>Interface identification is specified in ERC-165. This function  uses less than 30,000 gas.</p>
+</blockquote>
+<p><strong>Execution cost</strong>: less than 267 gas</p>
+<p><strong>Attributes</strong>: constant</p>
+<p>Params:</p>
+<ol>
+<li>
+<p><strong>interfaceID</strong> <em>of type <code>bytes4</code></em></p>
+<blockquote>
+<p>The interface identifier, as specified in ERC-165</p>
+</blockquote>
+</li>
+</ol>
+<p>Returns:</p>
+<blockquote>
+<p><code>true</code> if the contract implements <code>interfaceID</code> and  <code>interfaceID</code> is not 0xffffffff, <code>false</code> otherwise</p>
+</blockquote>
+<ol>
+<li><strong>output_0</strong> <em>of type <code>bool</code></em></li>
+</ol>
+<hr />
+<h3 id="assignfullkeybytes32address">assignFullKey(bytes32,address)<a class="headerlink" href="#assignfullkeybytes32address" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>assign all capabilities from the sender to an account</p>
+</blockquote>
+<p><strong>Execution cost</strong>: No bound available</p>
+<p>Params:</p>
+<ol>
+<li>
+<p><strong>_id</strong> <em>of type <code>bytes32</code></em></p>
+<blockquote>
+<p>lock id</p>
+</blockquote>
+</li>
+<li>
+<p><strong>_to</strong> <em>of type <code>address</code></em></p>
+<blockquote>
+<p>recipient</p>
+</blockquote>
+</li>
+</ol>
+<hr />
+<h3 id="keysbytes32address">keys(bytes32,address)<a class="headerlink" href="#keysbytes32address" title="Permanent link">&para;</a></h3>
+<p><strong>Execution cost</strong>: less than 1402 gas</p>
+<p><strong>Attributes</strong>: constant</p>
+<p>Params:</p>
+<ol>
+<li><strong>param_0</strong> <em>of type <code>bytes32</code></em></li>
+<li><strong>param_1</strong> <em>of type <code>address</code></em></li>
+</ol>
+<p>Returns:</p>
+<ol>
+<li><strong>exists</strong> <em>of type <code>bool</code></em></li>
+<li><strong>assignable</strong> <em>of type <code>bool</code></em></li>
+<li><strong>start</strong> <em>of type <code>uint256</code></em></li>
+<li><strong>expiration</strong> <em>of type <code>uint256</code></em></li>
+<li><strong>uses</strong> <em>of type <code>uint256</code></em></li>
+</ol>
+<hr />
+<h3 id="isvalidexpirationuint256">isValidExpiration(uint256)<a class="headerlink" href="#isvalidexpirationuint256" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>is the current block timestamp less than <code>_expiration</code></p>
+</blockquote>
+<p><strong>Execution cost</strong>: less than 296 gas</p>
+<p><strong>Attributes</strong>: constant</p>
+<p>Params:</p>
+<ol>
+<li>
+<p><strong>_expiration</strong> <em>of type <code>uint256</code></em></p>
+<blockquote>
+<p>expiration block timestamp</p>
+</blockquote>
+</li>
+</ol>
+<p>Returns:</p>
+<blockquote>
+<p>is the expiration valid</p>
+</blockquote>
+<ol>
+<li><strong>valid</strong> <em>of type <code>bool</code></em></li>
+</ol>
+<hr />
+<h3 id="revokekeybytes32">revokeKey(bytes32)<a class="headerlink" href="#revokekeybytes32" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>revoke the sender's key</p>
+</blockquote>
+<p><strong>Execution cost</strong>: less than 37256 gas</p>
+<p>Params:</p>
+<ol>
+<li>
+<p><strong>_id</strong> <em>of type <code>bytes32</code></em></p>
+<blockquote>
+<p>lock id</p>
+</blockquote>
+</li>
+</ol>
+<hr />
+<h3 id="unlockablebytes32address">unlockable(bytes32,address)<a class="headerlink" href="#unlockablebytes32address" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>does the owner have a valid key for the lock id</p>
+</blockquote>
+<p><strong>Execution cost</strong>: less than 1901 gas</p>
+<p><strong>Attributes</strong>: constant</p>
+<p>Params:</p>
+<ol>
+<li>
+<p><strong>_id</strong> <em>of type <code>bytes32</code></em></p>
+<blockquote>
+<p>lock id</p>
+</blockquote>
+</li>
+<li>
+<p><strong>_owner</strong> <em>of type <code>address</code></em></p>
+<blockquote>
+<p>owner address</p>
+</blockquote>
+</li>
+</ol>
+<p>Returns:</p>
+<ol>
+<li><strong>output_0</strong> <em>of type <code>bool</code></em></li>
+</ol>
+<hr />
+<h3 id="getkeybytes32address">getKey(bytes32,address)<a class="headerlink" href="#getkeybytes32address" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>does the owner have a valid key for the lock id</p>
+</blockquote>
+<p><strong>Execution cost</strong>: less than 1574 gas</p>
+<p><strong>Attributes</strong>: constant</p>
+<p>Params:</p>
+<ol>
+<li>
+<p><strong>_id</strong> <em>of type <code>bytes32</code></em></p>
+<blockquote>
+<p>lock id</p>
+</blockquote>
+</li>
+<li>
+<p><strong>_owner</strong> <em>of type <code>address</code></em></p>
+<blockquote>
+<p>owner address</p>
+</blockquote>
+</li>
+</ol>
+<p>Returns:</p>
+<blockquote>
+<p>the properties of the requested key as a tuple</p>
+</blockquote>
+<ol>
+<li><strong>output_0</strong> <em>of type <code>bool</code></em></li>
+<li><strong>output_1</strong> <em>of type <code>bool</code></em></li>
+<li><strong>output_2</strong> <em>of type <code>uint256</code></em></li>
+<li><strong>output_3</strong> <em>of type <code>uint256</code></em></li>
+<li><strong>output_4</strong> <em>of type <code>uint256</code></em></li>
+</ol>
+<hr />
+<h3 id="assignkeybytes32addressbooluint256uint256uint256">assignKey(bytes32,address,bool,uint256,uint256,uint256)<a class="headerlink" href="#assignkeybytes32addressbooluint256uint256uint256" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>assign partial or all capabilities from the sender to an account</p>
+</blockquote>
+<p><strong>Execution cost</strong>: No bound available</p>
+<p>Params:</p>
+<ol>
+<li>
+<p><strong>_id</strong> <em>of type <code>bytes32</code></em></p>
+<blockquote>
+<p>lock id</p>
+</blockquote>
+</li>
+<li>
+<p><strong>_to</strong> <em>of type <code>address</code></em></p>
+<blockquote>
+<p>recipient</p>
+</blockquote>
+</li>
+<li>
+<p><strong>_assignable</strong> <em>of type <code>bool</code></em></p>
+<blockquote>
+<p>can the recipient further assignKey capabilities to other accounts?</p>
+</blockquote>
+</li>
+<li>
+<p><strong>_start</strong> <em>of type <code>uint256</code></em></p>
+<blockquote>
+<p>the key's start time (block timestamp)</p>
+</blockquote>
+</li>
+<li>
+<p><strong>_expiration</strong> <em>of type <code>uint256</code></em></p>
+<blockquote>
+<p>the key's expiration time (block timestamp)</p>
+</blockquote>
+</li>
+<li>
+<p><strong>_uses</strong> <em>of type <code>uint256</code></em></p>
+<blockquote>
+<p>number of times this key can be used (in <code>unlock(..)</code>)</p>
+</blockquote>
+</li>
+</ol>
+<p><a href="#permissioned">Back to the top ↑</a></p>
                 
                   
                 

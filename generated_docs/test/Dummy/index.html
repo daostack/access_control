@@ -33,18 +33,18 @@
       
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
-      <link rel="shortcut icon" href="../../img/favicon.ico">
+      <link rel="shortcut icon" href="../../../img/favicon.ico">
       <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-3.0.6">
     
     
       
-        <title>Migrations - DAOstack Access Control Docs</title>
+        <title>Dummy - DAOstack Access Control Docs</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/application.451f80e5.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/application.451f80e5.css">
       
-        <link rel="stylesheet" href="../../assets/stylesheets/application-palette.22915126.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/application-palette.22915126.css">
       
       
         
@@ -53,7 +53,7 @@
       
     
     
-      <script src="../../assets/javascripts/modernizr.1aa3b519.js"></script>
+      <script src="../../../assets/javascripts/modernizr.1aa3b519.js"></script>
     
     
       
@@ -62,7 +62,7 @@
         <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
       
     
-    <link rel="stylesheet" href="../../assets/fonts/material-icons.css">
+    <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
     
   </head>
@@ -100,7 +100,7 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
     
-      <a href="#migrations" tabindex="1" class="md-skip">
+      <a href="#dummy" tabindex="1" class="md-skip">
         Skip to content
       </a>
     
@@ -109,7 +109,7 @@
   <nav class="md-header-nav md-grid">
     <div class="md-flex">
       <div class="md-flex__cell md-flex__cell--shrink">
-        <a href="../.." title="DAOstack Access Control Docs" class="md-header-nav__button md-logo">
+        <a href="../../.." title="DAOstack Access Control Docs" class="md-header-nav__button md-logo">
           
             <i class="md-icon"></i>
           
@@ -126,7 +126,7 @@
                 DAOstack Access Control Docs
               </span>
               <span class="md-header-nav__topic">
-                Migrations
+                Dummy
               </span>
             
           
@@ -205,7 +205,7 @@
                   <div class="md-sidebar__inner">
                     <nav class="md-nav md-nav--primary" data-md-level="0">
   <label class="md-nav__title md-nav__title--site" for="__drawer">
-    <a href="../.." title="DAOstack Access Control Docs" class="md-nav__button md-logo">
+    <a href="../../.." title="DAOstack Access Control Docs" class="md-nav__button md-logo">
       
         <i class="md-icon"></i>
       
@@ -243,7 +243,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../.." title="Home" class="md-nav__link">
+    <a href="../../.." title="Home" class="md-nav__link">
       Home
     </a>
   </li>
@@ -270,9 +270,22 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#constructor" title="Constructor" class="md-nav__link">
-    Constructor
+  <a href="#events" title="Events" class="md-nav__link">
+    Events
   </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#funceduint256uint256" title="Funced(uint256,uint256)" class="md-nav__link">
+    Funced(uint256,uint256)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -285,29 +298,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#upgradeaddress" title="upgrade(address)" class="md-nav__link">
-    upgrade(address)
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#owner" title="owner()" class="md-nav__link">
-    owner()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#lastcompletedmigration" title="lastCompletedMigration()" class="md-nav__link">
-    lastCompletedMigration()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#setcompleteduint256" title="setCompleted(uint256)" class="md-nav__link">
-    setCompleted(uint256)
+  <a href="#funcuint256uint256" title="func(uint256,uint256)" class="md-nav__link">
+    func(uint256,uint256)
   </a>
   
 </li>
@@ -333,46 +325,39 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/daostack/access_control/edit/master/docs/generated_docs/Migrations.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                  <a href="https://github.com/daostack/access_control/edit/master/docs/generated_docs/test/Dummy.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                <h1 id="migrations">Migrations<a class="headerlink" href="#migrations" title="Permanent link">&para;</a></h1>
-<p><a href="git+https://github.com/daostack/access_control/tree/master/contracts/Migrations.sol">see the source</a></p>
-<p><strong>Execution cost</strong>: less than 20451 gas</p>
-<p><strong>Deployment cost</strong>: less than 114400 gas</p>
-<p><strong>Combined cost</strong>: less than 134851 gas</p>
-<h2 id="constructor">Constructor<a class="headerlink" href="#constructor" title="Permanent link">&para;</a></h2>
-<h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
-<h3 id="upgradeaddress">upgrade(address)<a class="headerlink" href="#upgradeaddress" title="Permanent link">&para;</a></h3>
+                <h1 id="dummy">Dummy<a class="headerlink" href="#dummy" title="Permanent link">&para;</a></h1>
+<p><a href="git+https://github.com/daostack/access_control/tree/master/contracts/test/Dummy.sol">see the source</a></p>
+<blockquote>
+<p>A dummy contract used for testing.</p>
+</blockquote>
+<p><strong>Execution cost</strong>: less than 99 gas</p>
+<p><strong>Deployment cost</strong>: less than 46800 gas</p>
+<p><strong>Combined cost</strong>: less than 46899 gas</p>
+<h2 id="events">Events<a class="headerlink" href="#events" title="Permanent link">&para;</a></h2>
+<h3 id="funceduint256uint256">Funced(uint256,uint256)<a class="headerlink" href="#funceduint256uint256" title="Permanent link">&para;</a></h3>
 <p><strong>Execution cost</strong>: No bound available</p>
 <p>Params:</p>
 <ol>
-<li><strong>newAddress</strong> <em>of type <code>address</code></em></li>
+<li><strong>_arg0</strong> <em>of type <code>uint256</code></em></li>
+<li><strong>_arg1</strong> <em>of type <code>uint256</code></em></li>
 </ol>
-<hr />
-<h3 id="owner">owner()<a class="headerlink" href="#owner" title="Permanent link">&para;</a></h3>
-<p><strong>Execution cost</strong>: less than 421 gas</p>
-<p><strong>Attributes</strong>: constant</p>
-<p>Returns:</p>
+<h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
+<h3 id="funcuint256uint256">func(uint256,uint256)<a class="headerlink" href="#funcuint256uint256" title="Permanent link">&para;</a></h3>
+<p><strong>Execution cost</strong>: less than 1573 gas</p>
+<p>Params:</p>
 <ol>
-<li><strong>output_0</strong> <em>of type <code>address</code></em></li>
+<li><strong>_arg0</strong> <em>of type <code>uint256</code></em></li>
+<li><strong>_arg1</strong> <em>of type <code>uint256</code></em></li>
 </ol>
-<hr />
-<h3 id="lastcompletedmigration">lastCompletedMigration()<a class="headerlink" href="#lastcompletedmigration" title="Permanent link">&para;</a></h3>
-<p><strong>Execution cost</strong>: less than 428 gas</p>
-<p><strong>Attributes</strong>: constant</p>
 <p>Returns:</p>
 <ol>
 <li><strong>output_0</strong> <em>of type <code>uint256</code></em></li>
+<li><strong>output_1</strong> <em>of type <code>uint256</code></em></li>
 </ol>
-<hr />
-<h3 id="setcompleteduint256">setCompleted(uint256)<a class="headerlink" href="#setcompleteduint256" title="Permanent link">&para;</a></h3>
-<p><strong>Execution cost</strong>: less than 20444 gas</p>
-<p>Params:</p>
-<ol>
-<li><strong>completed</strong> <em>of type <code>uint256</code></em></li>
-</ol>
-<p><a href="#migrations">Back to the top ↑</a></p>
+<p><a href="#dummy">Back to the top ↑</a></p>
                 
                   
                 
@@ -403,7 +388,7 @@
       
         
   <div class="md-footer-social">
-    <link rel="stylesheet" href="../../assets/fonts/font-awesome.css">
+    <link rel="stylesheet" href="../../../assets/fonts/font-awesome.css">
     
       <a href="https://github.com/daostack/access_control" class="md-footer-social__link fa fa-github"></a>
     
@@ -420,9 +405,9 @@
       
     </div>
     
-      <script src="../../assets/javascripts/application.5e60981f.js"></script>
+      <script src="../../../assets/javascripts/application.5e60981f.js"></script>
       
-      <script>app.initialize({version:"1.0.4",url:{base:"../.."}})</script>
+      <script>app.initialize({version:"1.0.4",url:{base:"../../.."}})</script>
       
     
     

@@ -38,7 +38,7 @@
     
     
       
-        <title>Migrations - DAOstack Access Control Docs</title>
+        <title>InverseGroup - DAOstack Access Control Docs</title>
       
     
     
@@ -100,7 +100,7 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
     
-      <a href="#migrations" tabindex="1" class="md-skip">
+      <a href="#inversegroup" tabindex="1" class="md-skip">
         Skip to content
       </a>
     
@@ -126,7 +126,7 @@
                 DAOstack Access Control Docs
               </span>
               <span class="md-header-nav__topic">
-                Migrations
+                InverseGroup
               </span>
             
           
@@ -285,29 +285,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#upgradeaddress" title="upgrade(address)" class="md-nav__link">
-    upgrade(address)
+  <a href="#forwardaddressbytes" title="forward(address,bytes)" class="md-nav__link">
+    forward(address,bytes)
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#owner" title="owner()" class="md-nav__link">
-    owner()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#lastcompletedmigration" title="lastCompletedMigration()" class="md-nav__link">
-    lastCompletedMigration()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#setcompleteduint256" title="setCompleted(uint256)" class="md-nav__link">
-    setCompleted(uint256)
+  <a href="#ismemberaddress" title="isMember(address)" class="md-nav__link">
+    isMember(address)
   </a>
   
 </li>
@@ -333,46 +319,57 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/daostack/access_control/edit/master/docs/generated_docs/Migrations.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                  <a href="https://github.com/daostack/access_control/edit/master/docs/generated_docs/InverseGroup.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                <h1 id="migrations">Migrations<a class="headerlink" href="#migrations" title="Permanent link">&para;</a></h1>
-<p><a href="git+https://github.com/daostack/access_control/tree/master/contracts/Migrations.sol">see the source</a></p>
-<p><strong>Execution cost</strong>: less than 20451 gas</p>
-<p><strong>Deployment cost</strong>: less than 114400 gas</p>
-<p><strong>Combined cost</strong>: less than 134851 gas</p>
+                <h1 id="inversegroup">InverseGroup<a class="headerlink" href="#inversegroup" title="Permanent link">&para;</a></h1>
+<p><a href="git+https://github.com/daostack/access_control/tree/master/contracts/Groups.sol">see the source</a></p>
+<blockquote>
+<p>Group that comprises of all members not belonging to a group.</p>
+</blockquote>
+<p><strong>Execution cost</strong>: less than 20621 gas</p>
+<p><strong>Deployment cost</strong>: less than 147800 gas</p>
+<p><strong>Combined cost</strong>: less than 168421 gas</p>
 <h2 id="constructor">Constructor<a class="headerlink" href="#constructor" title="Permanent link">&para;</a></h2>
+<p>Params:</p>
+<ol>
+<li><strong>_group</strong> <em>of type <code>address</code></em></li>
+</ol>
 <h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
-<h3 id="upgradeaddress">upgrade(address)<a class="headerlink" href="#upgradeaddress" title="Permanent link">&para;</a></h3>
+<h3 id="forwardaddressbytes">forward(address,bytes)<a class="headerlink" href="#forwardaddressbytes" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>Call a method on a contract in the name of the group.</p>
+</blockquote>
 <p><strong>Execution cost</strong>: No bound available</p>
+<p><strong>Attributes</strong>: payable</p>
 <p>Params:</p>
 <ol>
-<li><strong>newAddress</strong> <em>of type <code>address</code></em></li>
+<li>
+<p><strong>_contract</strong> <em>of type <code>address</code></em></p>
+<blockquote>
+<p>contract address to call.</p>
+</blockquote>
+</li>
+<li>
+<p><strong>_data</strong> <em>of type <code>bytes</code></em></p>
+<blockquote>
+<p>ABI encoded function call data.</p>
+</blockquote>
+</li>
 </ol>
 <hr />
-<h3 id="owner">owner()<a class="headerlink" href="#owner" title="Permanent link">&para;</a></h3>
-<p><strong>Execution cost</strong>: less than 421 gas</p>
+<h3 id="ismemberaddress">isMember(address)<a class="headerlink" href="#ismemberaddress" title="Permanent link">&para;</a></h3>
+<p><strong>Execution cost</strong>: No bound available</p>
 <p><strong>Attributes</strong>: constant</p>
-<p>Returns:</p>
-<ol>
-<li><strong>output_0</strong> <em>of type <code>address</code></em></li>
-</ol>
-<hr />
-<h3 id="lastcompletedmigration">lastCompletedMigration()<a class="headerlink" href="#lastcompletedmigration" title="Permanent link">&para;</a></h3>
-<p><strong>Execution cost</strong>: less than 428 gas</p>
-<p><strong>Attributes</strong>: constant</p>
-<p>Returns:</p>
-<ol>
-<li><strong>output_0</strong> <em>of type <code>uint256</code></em></li>
-</ol>
-<hr />
-<h3 id="setcompleteduint256">setCompleted(uint256)<a class="headerlink" href="#setcompleteduint256" title="Permanent link">&para;</a></h3>
-<p><strong>Execution cost</strong>: less than 20444 gas</p>
 <p>Params:</p>
 <ol>
-<li><strong>completed</strong> <em>of type <code>uint256</code></em></li>
+<li><strong>_account</strong> <em>of type <code>address</code></em></li>
 </ol>
-<p><a href="#migrations">Back to the top ↑</a></p>
+<p>Returns:</p>
+<ol>
+<li><strong>output_0</strong> <em>of type <code>bool</code></em></li>
+</ol>
+<p><a href="#inversegroup">Back to the top ↑</a></p>
                 
                   
                 
