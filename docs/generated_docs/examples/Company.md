@@ -4,7 +4,7 @@
 
 **Execution cost**: No bound available
 
-**Deployment cost**: less than 1050600 gas
+**Deployment cost**: less than 1046800 gas
 
 **Combined cost**: No bound available
 
@@ -47,24 +47,33 @@ Params:
 
 
 ## Methods
-### revokeKey(bytes32)
+### supportsInterface(bytes4)
 >
-> revoke the sender's key
+>Query if a contract implements an interface
+>
+> Interface identification is specified in ERC-165. This function  uses less than 30,000 gas.
 
 
-**Execution cost**: less than 37300 gas
+**Execution cost**: less than 271 gas
+
+**Attributes**: constant
 
 
 Params:
 
-1. **_id** *of type `bytes32`*
+1. **interfaceID** *of type `bytes4`*
 
-    > lock id
+    > The interface identifier, as specified in ERC-165
 
 
+Returns:
+
+> `true` if the contract implements `interfaceID` and  `interfaceID` is not 0xffffffff, `false` otherwise
+
+1. **output_0** *of type `bool`*
 
 --- 
-### registerEmployee(address,uint256)
+### payout(address)
 
 
 **Execution cost**: No bound available
@@ -73,7 +82,6 @@ Params:
 Params:
 
 1. **_employee** *of type `address`*
-2. **_salary** *of type `uint256`*
 
 
 --- 
@@ -157,24 +165,12 @@ Returns:
 1. **valid** *of type `bool`*
 
 --- 
-### payout(address)
-
-
-**Execution cost**: No bound available
-
-
-Params:
-
-1. **_employee** *of type `address`*
-
-
---- 
-### assignKey(bytes32,address,bool,uint256,uint256,uint256)
+### revokeKey(bytes32)
 >
-> assign partial or all capabilities from the sender to an account
+> revoke the sender's key
 
 
-**Execution cost**: No bound available
+**Execution cost**: less than 37300 gas
 
 
 Params:
@@ -183,27 +179,34 @@ Params:
 
     > lock id
 
-2. **_to** *of type `address`*
-
-    > recipient
-
-3. **_assignable** *of type `bool`*
-
-    > can the recipient further assignKey capabilities to other accounts?
-
-4. **_start** *of type `uint256`*
-
-    > the key's start time (block timestamp)
-
-5. **_expiration** *of type `uint256`*
-
-    > the key's expiration time (block timestamp)
-
-6. **_uses** *of type `uint256`*
-
-    > number of times this key can be used (in `unlock(..)`)
 
 
+--- 
+### unlockable(bytes32,address)
+>
+> does the owner have a valid key for the lock id
+
+
+**Execution cost**: less than 1945 gas
+
+**Attributes**: constant
+
+
+Params:
+
+1. **_id** *of type `bytes32`*
+
+    > lock id
+
+2. **_owner** *of type `address`*
+
+    > owner address
+
+
+Returns:
+
+
+1. **output_0** *of type `bool`*
 
 --- 
 ### hireHRCompany(address,uint80)
@@ -251,40 +254,12 @@ Returns:
 5. **output_4** *of type `uint256`*
 
 --- 
-### supportsInterface(bytes4)
+### assignKey(bytes32,address,bool,uint256,uint256,uint256)
 >
->Query if a contract implements an interface
->
-> Interface identification is specified in ERC-165. This function  uses less than 30,000 gas.
+> assign partial or all capabilities from the sender to an account
 
 
-**Execution cost**: less than 271 gas
-
-**Attributes**: constant
-
-
-Params:
-
-1. **interfaceID** *of type `bytes4`*
-
-    > The interface identifier, as specified in ERC-165
-
-
-Returns:
-
-> `true` if the contract implements `interfaceID` and  `interfaceID` is not 0xffffffff, `false` otherwise
-
-1. **output_0** *of type `bool`*
-
---- 
-### unlockable(bytes32,address)
->
-> does the owner have a valid key for the lock id
-
-
-**Execution cost**: less than 1945 gas
-
-**Attributes**: constant
+**Execution cost**: No bound available
 
 
 Params:
@@ -293,14 +268,39 @@ Params:
 
     > lock id
 
-2. **_owner** *of type `address`*
+2. **_to** *of type `address`*
 
-    > owner address
+    > recipient
+
+3. **_assignable** *of type `bool`*
+
+    > can the recipient further assignKey capabilities to other accounts?
+
+4. **_start** *of type `uint256`*
+
+    > the key's start time (block timestamp)
+
+5. **_expiration** *of type `uint256`*
+
+    > the key's expiration time (block timestamp)
+
+6. **_uses** *of type `uint256`*
+
+    > number of times this key can be used (in `unlock(..)`)
 
 
-Returns:
+
+--- 
+### registerEmployee(address,uint256)
 
 
-1. **output_0** *of type `bool`*
+**Execution cost**: No bound available
+
+
+Params:
+
+1. **_employee** *of type `address`*
+2. **_salary** *of type `uint256`*
+
 
 [Back to the top ↑](#company)

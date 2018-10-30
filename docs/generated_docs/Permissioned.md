@@ -41,6 +41,32 @@ Params:
 
 
 ## Methods
+### supportsInterface(bytes4)
+>
+>Query if a contract implements an interface
+>
+> Interface identification is specified in ERC-165. This function  uses less than 30,000 gas.
+
+
+**Execution cost**: less than 267 gas
+
+**Attributes**: constant
+
+
+Params:
+
+1. **interfaceID** *of type `bytes4`*
+
+    > The interface identifier, as specified in ERC-165
+
+
+Returns:
+
+> `true` if the contract implements `interfaceID` and  `interfaceID` is not 0xffffffff, `false` otherwise
+
+1. **output_0** *of type `bool`*
+
+--- 
 ### assignFullKey(bytes32,address)
 >
 > assign all capabilities from the sender to an account
@@ -60,6 +86,129 @@ Params:
     > recipient
 
 
+
+--- 
+### keys(bytes32,address)
+
+
+**Execution cost**: less than 1402 gas
+
+**Attributes**: constant
+
+
+Params:
+
+1. **param_0** *of type `bytes32`*
+2. **param_1** *of type `address`*
+
+Returns:
+
+
+1. **exists** *of type `bool`*
+2. **assignable** *of type `bool`*
+3. **start** *of type `uint256`*
+4. **expiration** *of type `uint256`*
+5. **uses** *of type `uint256`*
+
+--- 
+### isValidExpiration(uint256)
+>
+> is the current block timestamp less than `_expiration`
+
+
+**Execution cost**: less than 296 gas
+
+**Attributes**: constant
+
+
+Params:
+
+1. **_expiration** *of type `uint256`*
+
+    > expiration block timestamp
+
+
+Returns:
+
+> is the expiration valid
+
+1. **valid** *of type `bool`*
+
+--- 
+### revokeKey(bytes32)
+>
+> revoke the sender's key
+
+
+**Execution cost**: less than 37256 gas
+
+
+Params:
+
+1. **_id** *of type `bytes32`*
+
+    > lock id
+
+
+
+--- 
+### unlockable(bytes32,address)
+>
+> does the owner have a valid key for the lock id
+
+
+**Execution cost**: less than 1901 gas
+
+**Attributes**: constant
+
+
+Params:
+
+1. **_id** *of type `bytes32`*
+
+    > lock id
+
+2. **_owner** *of type `address`*
+
+    > owner address
+
+
+Returns:
+
+
+1. **output_0** *of type `bool`*
+
+--- 
+### getKey(bytes32,address)
+>
+> does the owner have a valid key for the lock id
+
+
+**Execution cost**: less than 1574 gas
+
+**Attributes**: constant
+
+
+Params:
+
+1. **_id** *of type `bytes32`*
+
+    > lock id
+
+2. **_owner** *of type `address`*
+
+    > owner address
+
+
+Returns:
+
+> the properties of the requested key as a tuple
+
+1. **output_0** *of type `bool`*
+2. **output_1** *of type `bool`*
+3. **output_2** *of type `uint256`*
+4. **output_3** *of type `uint256`*
+5. **output_4** *of type `uint256`*
 
 --- 
 ### assignKey(bytes32,address,bool,uint256,uint256,uint256)
@@ -97,154 +246,5 @@ Params:
     > number of times this key can be used (in `unlock(..)`)
 
 
-
---- 
-### getKey(bytes32,address)
->
-> does the owner have a valid key for the lock id
-
-
-**Execution cost**: less than 1574 gas
-
-**Attributes**: constant
-
-
-Params:
-
-1. **_id** *of type `bytes32`*
-
-    > lock id
-
-2. **_owner** *of type `address`*
-
-    > owner address
-
-
-Returns:
-
-> the properties of the requested key as a tuple
-
-1. **output_0** *of type `bool`*
-2. **output_1** *of type `bool`*
-3. **output_2** *of type `uint256`*
-4. **output_3** *of type `uint256`*
-5. **output_4** *of type `uint256`*
-
---- 
-### isValidExpiration(uint256)
->
-> is the current block timestamp less than `_expiration`
-
-
-**Execution cost**: less than 296 gas
-
-**Attributes**: constant
-
-
-Params:
-
-1. **_expiration** *of type `uint256`*
-
-    > expiration block timestamp
-
-
-Returns:
-
-> is the expiration valid
-
-1. **valid** *of type `bool`*
-
---- 
-### keys(bytes32,address)
-
-
-**Execution cost**: less than 1402 gas
-
-**Attributes**: constant
-
-
-Params:
-
-1. **param_0** *of type `bytes32`*
-2. **param_1** *of type `address`*
-
-Returns:
-
-
-1. **exists** *of type `bool`*
-2. **assignable** *of type `bool`*
-3. **start** *of type `uint256`*
-4. **expiration** *of type `uint256`*
-5. **uses** *of type `uint256`*
-
---- 
-### revokeKey(bytes32)
->
-> revoke the sender's key
-
-
-**Execution cost**: less than 37256 gas
-
-
-Params:
-
-1. **_id** *of type `bytes32`*
-
-    > lock id
-
-
-
---- 
-### supportsInterface(bytes4)
->
->Query if a contract implements an interface
->
-> Interface identification is specified in ERC-165. This function  uses less than 30,000 gas.
-
-
-**Execution cost**: less than 267 gas
-
-**Attributes**: constant
-
-
-Params:
-
-1. **interfaceID** *of type `bytes4`*
-
-    > The interface identifier, as specified in ERC-165
-
-
-Returns:
-
-> `true` if the contract implements `interfaceID` and  `interfaceID` is not 0xffffffff, `false` otherwise
-
-1. **output_0** *of type `bool`*
-
---- 
-### unlockable(bytes32,address)
->
-> does the owner have a valid key for the lock id
-
-
-**Execution cost**: less than 1901 gas
-
-**Attributes**: constant
-
-
-Params:
-
-1. **_id** *of type `bytes32`*
-
-    > lock id
-
-2. **_owner** *of type `address`*
-
-    > owner address
-
-
-Returns:
-
-
-1. **output_0** *of type `bool`*
 
 [Back to the top ↑](#permissioned)
