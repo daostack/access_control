@@ -28,3 +28,14 @@ extra:
 
 pages:
 - Home: README.md
+- Generated Docs:
+  - Permissioned: generated_docs/Permissioned.md
+  - ERC1480: generated_docs/ERC1480.md
+  - ERC1480Interface: generated_docs/ERC1480Interface.md
+  - ERC1480Storage: generated_docs/ERC1480Storage.md
+  - Group: generated_docs/Group.md
+  - IntersectionGroup: generated_docs/IntersectionGroup.md
+  - InverseGroup: generated_docs/InverseGroup.md
+  - UnionGroup: generated_docs/UnionGroup.md
+  - Examples:
+    - Company Example: generated_docs/examples/Company.md
