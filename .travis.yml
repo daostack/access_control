@@ -27,3 +27,10 @@ script:
   - npm run lint
   - npm run test
   - kill -9 $(lsof -t -i:8545)
+
+deploy:
+  provider: script
+  script: "npm publish"
+  skip_cleanup: true
+  on:
+    branch: master

@@ -16,19 +16,16 @@
 
 
 ## Methods
-### lastCompletedMigration()
+### upgrade(address)
 
 
-**Execution cost**: less than 428 gas
-
-**Attributes**: constant
+**Execution cost**: No bound available
 
 
+Params:
 
-Returns:
+1. **newAddress** *of type `address`*
 
-
-1. **output_0** *of type `uint256`*
 
 --- 
 ### owner()
@@ -46,6 +43,21 @@ Returns:
 1. **output_0** *of type `address`*
 
 --- 
+### lastCompletedMigration()
+
+
+**Execution cost**: less than 428 gas
+
+**Attributes**: constant
+
+
+
+Returns:
+
+
+1. **output_0** *of type `uint256`*
+
+--- 
 ### setCompleted(uint256)
 
 
@@ -55,18 +67,6 @@ Returns:
 Params:
 
 1. **completed** *of type `uint256`*
-
-
---- 
-### upgrade(address)
-
-
-**Execution cost**: No bound available
-
-
-Params:
-
-1. **newAddress** *of type `address`*
 
 
 [Back to the top ↑](#migrations)

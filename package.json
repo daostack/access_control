@@ -1,6 +1,6 @@
 {
   "name": "@daostack/access_control",
-  "version": "0.0.1",
+  "version": "0.1.1",
   "description": "Capability-based access control for Ethereum smart contracts.",
   "directories": {
     "test": "test"
