@@ -1,4 +1,5 @@
 ![AUR](https://img.shields.io/aur/license/yaourt.svg)
+[![Build Status](https://travis-ci.com/daostack/access_control.svg?branch=master)](https://travis-ci.com/daostack/access_control)
 
 # Access Control
 
